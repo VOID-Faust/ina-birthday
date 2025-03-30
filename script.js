@@ -1,960 +1,377 @@
-/* RESET & BASE */
-* { 
-    margin: 0; 
-    padding: 0; 
-    box-sizing: border-box; 
-}
+document.addEventListener('DOMContentLoaded', () => {
 
-body { 
-    font-family: 'Montserrat', sans-serif;
-    overflow-x: hidden;
-    background-color: #f9f9f9;
-}
+    // Activate scroll lock immediately
+    document.body.classList.add('gift-mode');
 
-h1, h2 {
-    font-family: 'Dancing Script', cursive;
-    margin-bottom: 1.5rem;
-    color: #333;
-}
+    document.getElementById('gift-box').addEventListener('click', () => {
+        // Remove gift box and unlock scroll
+        document.getElementById('gift-box').style.opacity = 0;
+        setTimeout(() => {
+            document.getElementById('gift-box').style.display = 'none';
+            document.body.classList.remove('gift-mode'); // THIS LINE REMOVES SCROLL LOCK
+        }, 300);
+        
+        document.getElementById('main-site').style.display = 'block';
+    });
 
-section {
-    padding: 3rem 1rem;
-    position: relative;
-    overflow: hidden;
-}
-
-/* BACKGROUND DECORATIONS */
-.bg-decoration {
-    position: absolute;
-    pointer-events: none;
-    opacity: 0.4;
-    z-index: 0;
-}
-
-.dots {
-    top: 0;
-    left: 0;
-    width: 100%;
-    height: 100%;
-    background-image: radial-gradient(#2b87d8 8%, transparent 8%);
-    background-position: 0 0;
-    background-size: 30px 30px;
-}
-
-.lines {
-    top: 0;
-    right: 0;
-    width: 50%;
-    height: 100%;
-    background: repeating-linear-gradient(
-        45deg,
-        transparent,
-        transparent 10px,
-        rgba(43, 135, 216, 0.1) 10px,
-        rgba(43, 135, 216, 0.1) 20px
-    );
-}
-
-.waves {
-    bottom: 0;
-    left: 0;
-    width: 100%;
-    height: 60%;
-    background-image: 
-        repeating-radial-gradient(
-            rgba(43, 135, 216, 0.2) 0,
-            rgba(43, 135, 216, 0.1) 1px,
-            transparent 2px,
-            transparent 100px
-        );
-    background-size: 100px 100px;
-}
-
-.circles {
-    top: 10%;
-    right: 5%;
-    width: 40%;
-    height: 80%;
-    background: 
-        radial-gradient(circle at 10% 30%, rgba(255, 215, 0, 0.1) 0%, rgba(255, 215, 0, 0.1) 8%, transparent 8.1%),
-        radial-gradient(circle at 30% 70%, rgba(255, 215, 0, 0.1) 0%, rgba(255, 215, 0, 0.1) 5%, transparent 5.1%),
-        radial-gradient(circle at 70% 20%, rgba(255, 215, 0, 0.1) 0%, rgba(255, 215, 0, 0.1) 10%, transparent 10.1%),
-        radial-gradient(circle at 90% 90%, rgba(255, 215, 0, 0.1) 0%, rgba(255, 215, 0, 0.1) 7%, transparent 7.1%),
-        radial-gradient(circle at 50% 50%, rgba(255, 215, 0, 0.1) 0%, rgba(255, 215, 0, 0.1) 15%, transparent 15.1%);
-}
-
-/* HERO SECTION */
-.hero {
-    min-height: 100vh;
-    background: #2b87d8; /* Deeper blue */
-    position: relative;
-    overflow: hidden;
-    display: flex;
-    align-items: center;
-}
-
-/* SHOOTING STARS */
-.shooting-stars {
-    position: absolute;
-    width: 100%;
-    height: 100%;
-    overflow: hidden;
-    z-index: 1;
-}
-
-.star {
-    position: absolute;
-    color: white;
-    opacity: 0;
-    z-index: 2;
-    animation: shooting 8s linear infinite;
-}
-
-@keyframes shooting {
-    0% { 
-        transform: translate(-50px, -50px) rotate(0deg); 
-        opacity: 0; 
+    // Create shooting stars
+    function createStars() {
+        const container = document.querySelector('.shooting-stars');
+        const starCount = 100; // Doubled the star count for more stars!
+        
+        for (let i = 0; i < starCount; i++) {
+            const star = document.createElement('div');
+            star.className = 'star';
+            star.innerHTML = '★';
+            
+            // Random properties for more variation
+            star.style.left = `${Math.random() * 100}%`;
+            star.style.top = `${Math.random() * 100}%`;
+            star.style.animationDelay = `${Math.random() * 20}s`; // Even longer delay variation
+            star.style.fontSize = `${Math.random() * 2 + 1}rem`; // Even larger stars
+            
+            container.appendChild(star);
+        }
     }
-    10% { opacity: 1; }
-    80% { opacity: 0.8; }
-    100% { 
-        transform: translate(calc(100vw + 50px), calc(100vh + 50px)) rotate(45deg); 
-        opacity: 0;
-    }
-}
-
-/* HERO CONTENT */
-.hero-content {
-    max-width: 1200px;
-    margin: 0 auto;
-    padding: 2rem;
-    display: flex;
-    align-items: center;
-    justify-content: space-between;
-    gap: 3rem;
-    position: relative;
-    z-index: 3;
-}
-
-.letter {
-    flex: 1;
-    background: rgba(255, 255, 255, 0.9);
-    padding: 2rem;
-    border-radius: 15px;
-    box-shadow: 0 10px 30px rgba(0, 0, 0, 0.2);
-}
-
-.letter h1 {
-    color: #2b87d8;
-    font-size: 2.5rem;
-    margin-bottom: 1.5rem;
-}
-
-.letter p {
-    margin-bottom: 1rem;
-    line-height: 1.6;
-}
-
-.letter .heart {
-    animation: pulse 1.5s infinite;
-}
-
-.signature {
-    font-family: 'Dancing Script', cursive;
-    font-size: 1.5rem;
-    margin-top: 2rem;
-    text-align: right;
-}
-
-.hero-img-container {
-    flex: 1;
-    display: flex;
-    justify-content: center;
-}
-
-.hero-img {
-    width: 300px;
-    height: auto;
-    border-radius: 15px;
-    box-shadow: 0 10px 30px rgba(0, 0, 0, 0.3);
-    transform: rotate(3deg);
-    transition: transform 0.5s;
-    border: 10px solid white;
-}
-
-.hero-img:hover {
-    transform: rotate(0deg) scale(1.05);
-}
-
-@keyframes pulse {
-    0% { transform: scale(1); }
-    50% { transform: scale(1.2); }
-    100% { transform: scale(1); }
-}
-
-/* MEMORIES SECTION */
-.memories {
-    background: linear-gradient(to bottom, #f9f9f9, #e6f7ff);
-    text-align: center;
-    position: relative;
-    padding: 4rem 1rem;
-}
-
-.memories h2 {
-    color: #2b87d8;
-    font-size: 2.5rem;
-    margin-bottom: 2rem;
-    position: relative;
-    z-index: 1;
-}
-
-.carousel-container {
-    position: relative;
-    z-index: 1;
-}
-
-.carousel {
-    max-width: 100%;
-    margin: 2rem auto;
-    overflow: hidden;
-    position: relative;
-}
-
-.carousel-track {
-    display: flex;
-    gap: 1.5rem;
-    animation: scroll 40s linear infinite;
-    width: max-content;
-    padding: 1rem 0;
-}
-
-.carousel-track.paused {
-    animation-play-state: paused;
-}
-
-.memory-item {
-    position: relative;
-}
-
-.memory-item img {
-    width: 300px;
-    height: 200px;
-    object-fit: cover;
-    border-radius: 12px;
-    cursor: pointer;
-    transition: transform 0.3s, box-shadow 0.3s;
-    box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);
-    border: 5px solid white;
-}
-
-.memory-item img:hover {
-    transform: translateY(-10px);
-    box-shadow: 0 15px 30px rgba(0, 0, 0, 0.2);
-}
-
-@keyframes scroll {
-    0% { transform: translateX(0); }
-    100% { transform: translateX(calc(-300px * 5 - 1.5rem * 5)); } /* Adjust based on image count */
-}
-
-/* Viewer Overlay */
-.viewer-overlay {
-    position: fixed;
-    top: 0;
-    left: 0;
-    width: 100%;
-    height: 100%;
-    background: rgba(0, 0, 0, 0.1);
-    z-index: 998;
-    visibility: hidden;
-    pointer-events: none;
-}
-
-.viewer-overlay.active {
-    pointer-events: auto;
-    visibility: visible;
-}
-
-/* Memory Viewer Styles */
-.memory-viewer {
-    position: fixed;
-    top: 0;
-    left: 0;
-    width: 100%;
-    height: 100%;
-    background: rgba(0, 0, 0, 0.8);
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    z-index: 1000;
-    opacity: 0;
-    visibility: hidden;
-    transition: all 0.3s ease;
-}
-
-.memory-viewer.active {
-    opacity: 1;
-    visibility: visible;
-}
-
-.memory-content {
-    background: white;
-    padding: 2.5rem 1.5rem 1.5rem;
-    border-radius: 12px;
-    max-width: 80%;
-    max-height: 90vh;
-    position: relative;
-    text-align: center;
-    z-index: 1001;
-    box-shadow: 0 10px 30px rgba(0, 0, 0, 0.3);
-    overflow: visible;
-    display: flex;
-    flex-direction: column;
-}
-
-.memory-content img {
-    max-width: 100%;
-    max-height: 70vh;
-    object-fit: contain;
-    border-radius: 8px;
-    margin-bottom: 1rem;
-}
-
-.memory-caption {
-    font-size: 1.1rem;
-    color: #333;
-    margin-top: 1rem;
-}
-
-.close-memory {
-    position: absolute;
-    top: 10px;
-    right: 10px;
-    background: #e74c3c;
-    color: white;
-    border: none;
-    width: 40px;
-    height: 40px;
-    border-radius: 50%;
-    cursor: pointer;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    font-size: 18px;
-    box-shadow: 0 3px 10px rgba(0, 0, 0, 0.3);
-    z-index: 1002;
-    transition: all 0.2s ease;
-}
-
-.close-memory:hover {
-    background: #c0392b;
-    transform: scale(1.1);
-}
-
-/* MESSAGES SECTION */
-.messages {
-    padding: 4rem 1rem;
-    background: linear-gradient(to bottom, #e6f7ff, #f9f9f9);
-    text-align: center;
-    position: relative;
-}
-
-.messages h2 {
-    color: #2b87d8;
-    font-size: 2.5rem;
-    margin-bottom: 2rem;
-    position: relative;
-    z-index: 1;
-}
-
-.message-carousel {
-    max-width: 100%;
-    margin: 2rem auto;
-    overflow: hidden;
-    position: relative;
-    z-index: 1;
-}
-
-.message-track {
-    display: flex;
-    gap: 2rem;
-    animation: messageScroll 60s linear infinite;
-    width: max-content;
-    padding: 1rem 0;
-}
-
-.message-track.paused {
-    animation-play-state: paused;
-}
-
-@keyframes messageScroll {
-    0% { transform: translateX(0); }
-    100% { transform: translateX(calc(-250px * 4 - 2rem * 4)); } /* Adjust based on message count */
-}
-
-.message {
-    background: #BBE1FA;
-    padding: 1.5rem;
-    border-radius: 10px;
-    width: 250px;
-    height: 100px;
-    cursor: pointer;
-    transition: all 0.3s;
-    box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    font-weight: 600;
-}
-
-.message:hover {
-    transform: translateY(-5px) scale(1.05);
-    box-shadow: 0 10px 25px rgba(0, 0, 0, 0.2);
-    background: #a3d5fa;
-}
-
-.message span {
-    color: #2b87d8;
-    font-size: 1.1rem;
-}
-
-.sticky-note-container {
-    position: fixed;
-    top: 0;
-    left: 0;
-    width: 100%;
-    height: 100%;
-    background: rgba(0, 0, 0, 0.8);
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    z-index: 1000;
-    opacity: 0;
-    visibility: hidden;
-    transition: all 0.3s;
-}
-
-.sticky-note-container.active {
-    opacity: 1;
-    visibility: visible;
-}
-
-.sticky-note {
-    background: #FFF9C4;
-    padding: 2.5rem;
-    border-radius: 5px;
-    max-width: 400px;
-    width: 90%;
-    z-index: 1000;
-    box-shadow: 0 10px 25px rgba(0, 0, 0, 0.3);
-    position: relative;
-    text-align: left;
-    transform: rotate(-2deg);
-}
-
-.note-content {
-    font-size: 1.1rem;
-    line-height: 1.6;
-    margin-bottom: 2rem;
-}
-
-.note-sender {
-    font-family: 'Dancing Script', cursive;
-    font-size: 1.5rem;
-    text-align: right;
-    margin-top: 1rem;
-}
-
-.note-stamp {
-    position: absolute;
-    bottom: 20px;
-    right: 20px;
-    width: 80px;
-    height: 80px;
-    background-size: contain;
-    background-repeat: no-repeat;
-    opacity: 0.7;
-}
-
-.close-note {
-    position: absolute;
-    top: -15px;
-    right: -15px;
-    background: #2b87d8;
-    color: white;
-    border: none;
-    width: 30px;
-    height: 30px;
-    border-radius: 50%;
-    cursor: pointer;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-}
-
-/* MUSIC PLAYER */
-.music-player {
-    position: fixed;
-    bottom: 10px;    /* 10px from bottom */
-    right: 10px;     /* 10px from right */
-    z-index: 100;
-    margin: 0;
-    padding: 0;
-}
-
-/* Make the music player slightly larger */
-.music-button {
-    width: 60px;
-    height: 60px;
-    border-radius: 50%;
-    background: #FFD700;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    box-shadow: 0 3px 10px rgba(0,0,0,0.2);
-    cursor: pointer;
-    /* Remove any positioning offsets */
-    bottom: auto;
-    right: auto;
-}
-
-#play-btn {
-    background: none;
-    border: none;
-    color: #333;
-    font-size: 1.2rem;
-    cursor: pointer;
-    width: 100%;
-    height: 100%;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-}
-
-#play-btn.playing i {
-    animation: spin 4s linear infinite;
-}
-
-@keyframes spin {
-    0% { transform: rotate(0deg); }
-    100% { transform: rotate(360deg); }
-}
-
-/* Enhanced Music Controls */
-.music-controls {
-    position: absolute;
-    bottom: 70px;    /* Appears above the button */
-    right: 0;
-    background: rgba(0, 0, 0, 0.7);
-    padding: 0.8rem 0.4rem;  /* Reduced padding */
-    border-radius: 25px;
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    gap: 0.3rem;  /* Reduced gap */
-    margin-right: 5px;  /* Reduced margin */
-    opacity: 0;
-    transform: translateX(20px);
-    transition: all 0.3s;
-    min-height: 120px;  /* Shorter height */
-}
-
-.music-player:hover .music-controls {
-    opacity: 1;
-    transform: translateX(0);
-}
-
-#volume {
-    width: 20px;
-    height: 80px;
-    cursor: pointer;
-    appearance: slider-vertical;
-    writing-mode: bt-lr; /* For older Firefox */
-    -webkit-appearance: slider-vertical; /* For Chrome and Safari */
-}
-
-.volume-level {
-    color: white;
-    font-size: 0.8rem;
-    min-width: 40px;
-    text-align: center;
-}
-
-/* New Music Player Navigation Controls */
-.music-nav-btn {
-    background: #FFD700;
-    color: #333;
-    border: none;
-    width: 30px;
-    height: 30px;
-    border-radius: 50%;
-    cursor: pointer;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    transition: all 0.2s;
-    margin: 5px 0;
-}
-
-.music-nav-btn:hover {
-    transform: scale(1.1);
-    background: #fff5b5;
-}
-
-.song-title {
-    display: none;
-    color: white;
-    font-size: 0.8rem;
-}
-
-.sticky-note-form-container {
-    position: fixed;
-    top: 0;
-    left: 0;
-    width: 100%;
-    height: 100%;
-    background: rgba(0, 0, 0, 0.8);
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    z-index: 1000;
-    opacity: 0;
-    visibility: hidden;
-    transition: all 0.3s;
-}
-
-.sticky-note-form-container.active {
-    opacity: 1;
-    visibility: visible;
-}
-
-/* Add to style.css */
-.add-note-btn {
-    position: absolute;
-    right: 20px;
-    top: 50%;
-    transform: translateY(-50%);
-    z-index: 2;
-}
-
-#open-note-form {
-    background: #2b87d8;
-    color: white;
-    border: none;
-    width: 50px;
-    height: 50px;
-    border-radius: 50%;
-    cursor: pointer;
-    box-shadow: 0 5px 15px rgba(0,0,0,0.3);
-    transition: all 0.3s;
-}
-
-#open-note-form:hover {
-    transform: scale(1.1);
-    background: #1a5f9e;
-}
-
-.sticky-note-form-container {
-    /* Same as .sticky-note-container styles */
-    position: fixed;
-    /* ... existing sticky note container styles ... */
-}
-
-.sticky-note-form {
-    background: #FFF9C4;
-    padding: 2rem;
-    border-radius: 5px;
-    max-width: 500px;
-    width: 90%;
-    transform: rotate(-2deg);
-}
-
-#note-form textarea {
-    width: 100%;
-    height: 200px;
-    border: none;
-    background: transparent;
-    resize: none;
-    font-size: 1.1rem;
-    margin-bottom: 1rem;
-}
-
-.form-footer {
-    display: flex;
-    gap: 1rem;
-    margin-top: 1rem;
-}
-
-.image-add-btn {
-    background: #2b87d8;
-    color: white;
-    border: none;
-    padding: 0.5rem 1rem;
-    border-radius: 20px;
-    cursor: pointer;
-}
-
-.image-preview-container {
-    display: grid;
-    grid-template-columns: repeat(3, 1fr);
-    gap: 0.5rem;
-    margin: 1rem 0;
-}
-
-.image-preview {
-    position: relative;
-    aspect-ratio: 1;
-}
-
-.image-preview img {
-    width: 100%;
-    height: 100%;
-    object-fit: cover;
-    border-radius: 5px;
-}
-
-.remove-image {
-    position: absolute;
-    top: 2px;
-    right: 2px;
-    background: red;
-    color: white;
-    border: none;
-    border-radius: 50%;
-    width: 20px;
-    height: 20px;
-    cursor: pointer;
-}
-
-/* RESPONSIVE */
-@media (max-width: 900px) {
-    .hero-content {
-        flex-direction: column-reverse;
-        text-align: center;
+    createStars();
+
+    // Clone memory items for infinite loop
+    const memoryTrack = document.querySelector('.carousel-track');
+    const memoryItems = memoryTrack.querySelectorAll('.memory-item');
+    
+    memoryItems.forEach(item => {
+        const clone = item.cloneNode(true);
+        memoryTrack.appendChild(clone);
+    });
+
+    // Clone message items for infinite loop
+    const messageTrack = document.querySelector('.message-track');
+    const messageItems = messageTrack.querySelectorAll('.message');
+    
+    messageItems.forEach(item => {
+        const clone = item.cloneNode(true);
+        messageTrack.appendChild(clone);
+    });
+
+    // Memory viewer functionality
+    const memoryItems2 = document.querySelectorAll('.memory-item img');
+    const memoryViewer = document.querySelector('.memory-viewer');
+    const memoryImage = memoryViewer.querySelector('img');
+    const memoryCaption = memoryViewer.querySelector('.memory-caption');
+    const closeMemory = document.querySelector('.close-memory');
+    const viewerOverlay = document.querySelector('.viewer-overlay');
+    let isScrollPaused = false;
+
+    // Open memory viewer
+    memoryItems2.forEach(img => {
+        img.addEventListener('click', () => {
+            memoryImage.src = img.src;
+            memoryCaption.textContent = img.dataset.caption || img.alt;
+            memoryViewer.classList.add('active');
+            viewerOverlay.classList.add('active');
+            document.body.style.overflow = 'hidden'; // Prevent page scrolling
+            
+            // Pause all animations
+            memoryTrack.classList.add('paused');
+            messageTrack.classList.add('paused');
+            isScrollPaused = true;
+        });
+    });
+
+    // Close memory viewer function
+    function closeMemoryViewer() {
+        memoryViewer.classList.remove('active');
+        viewerOverlay.classList.remove('active');
+        document.body.style.overflow = ''; // Restore scrolling
+        
+        // Resume animations if sticky note is not active
+        const stickyContainer = document.querySelector('.sticky-note-container');
+        
+        if (!stickyContainer.classList.contains('active')) {
+            memoryTrack.classList.remove('paused');
+            messageTrack.classList.remove('paused');
+            isScrollPaused = false;
+        }
     }
     
-    .hero-img {
-        width: 250px;
-        margin-bottom: 2rem;
-    }
+    // Multiple ways to close the viewer
+    closeMemory.addEventListener('click', closeMemoryViewer);
     
-    .letter {
-        width: 100%;
-    }
-    
-    .signature {
-        text-align: center;
-    }
-    
-    .memory-item img {
-        width: 250px;
-        height: 180px;
-    }
-    
-    @keyframes scroll {
-        0% { transform: translateX(0); }
-        100% { transform: translateX(calc(-250px * 5 - 1.5rem * 5)); }
-    }
-    
-    @keyframes messageScroll {
-        0% { transform: translateX(0); }
-        100% { transform: translateX(calc(-200px * 4 - 2rem * 4)); }
-    }
-    
-    .message {
-        width: 200px;
-    }
-}
+    memoryViewer.addEventListener('click', (e) => {
+        if (e.target === memoryViewer) {
+            closeMemoryViewer();
+        }
+    });
 
-@media (max-width: 600px) {
-    .hero-img {
-        width: 200px;
+    // Messages sticky note functionality
+    const messageItems2 = document.querySelectorAll('.message');
+    const stickyContainer = document.querySelector('.sticky-note-container');
+    const noteContent = document.querySelector('.note-content');
+    const noteSender = document.querySelector('.note-sender');
+    const noteStamp = document.querySelector('.note-stamp');
+    const closeNote = document.querySelector('.close-note');
+
+    messageItems2.forEach(msg => {
+        msg.addEventListener('click', () => {
+            noteContent.textContent = msg.dataset.msg;
+            noteSender.textContent = `- ${msg.dataset.sender}`;
+            noteStamp.style.backgroundImage = `url(${msg.dataset.stamp})`;
+            stickyContainer.classList.add('active');
+            document.body.style.overflow = 'hidden'; // Prevent page scrolling
+            
+            // Pause all animations
+            memoryTrack.classList.add('paused');
+            messageTrack.classList.add('paused');
+            isScrollPaused = true;
+        });
+    });
+
+    // Close note function
+    function closeNoteViewer() {
+        stickyContainer.classList.remove('active');
+        document.body.style.overflow = ''; // Restore scrolling
+        
+        // Resume animations if memory viewer is not active
+        if (!memoryViewer.classList.contains('active')) {
+            memoryTrack.classList.remove('paused');
+            messageTrack.classList.remove('paused');
+            isScrollPaused = false;
+        }
     }
     
-    .letter h1 {
-        font-size: 2rem;
+    closeNote.addEventListener('click', closeNoteViewer);
+
+    // Music player with multiple songs
+    const music = document.getElementById('music');
+    const volumeSlider = document.getElementById('volume');
+    const volumeDisplay = document.querySelector('.volume-level');
+    const playBtn = document.getElementById('play-btn');
+    let isPlaying = false;
+    
+    // Create playlist of songs
+    const playlist = [
+        "music/Bruno Major - To Let A Good Thing Die (Instrumental).mp3",
+        "music/Sparks_(Instrumental).mp3",
+        // Add more songs here
+    ];
+    
+    let currentSongIndex = 0;
+    
+    // Function to load and play the current song
+    function loadSong(index) {
+        music.src = playlist[index];
+        music.load();
+        if (isPlaying) {
+            music.play();
+        }
     }
     
-    .memory-item img {
-        width: 200px;
-        height: 150px;
+    // Add next and previous song buttons
+    const musicControls = document.querySelector('.music-controls');
+    
+    // Create previous button
+    const prevBtn = document.createElement('button');
+    prevBtn.innerHTML = '<i class="fas fa-step-backward"></i>';
+    prevBtn.className = 'music-nav-btn prev-btn';
+    prevBtn.title = "Previous Song";
+    
+    // Create next button
+    const nextBtn = document.createElement('button');
+    nextBtn.innerHTML = '<i class="fas fa-step-forward"></i>';
+    nextBtn.className = 'music-nav-btn next-btn';
+    nextBtn.title = "Next Song";
+    
+    // Create song title display
+    const songTitle = document.createElement('div');
+    songTitle.className = 'song-title';
+    songTitle.textContent = "Song 1";
+    
+    // Add buttons to controls
+    musicControls.appendChild(prevBtn);
+    musicControls.appendChild(nextBtn);
+    musicControls.appendChild(songTitle);
+    
+    // Update song title display
+    function updateSongTitle() {
+        const filename = playlist[currentSongIndex].split('/').pop().replace('.mp3', '');
+        songTitle.textContent = filename;
     }
     
-    @keyframes scroll {
-        0% { transform: translateX(0); }
-        100% { transform: translateX(calc(-200px * 5 - 1.5rem * 5)); }
-    }
+    // Initialize song title
+    updateSongTitle();
     
-    @keyframes messageScroll {
-        0% { transform: translateX(0); }
-        100% { transform: translateX(calc(-180px * 4 - 2rem * 4)); }
-    }
+    // Previous song button event
+    prevBtn.addEventListener('click', () => {
+        currentSongIndex = (currentSongIndex - 1 + playlist.length) % playlist.length;
+        loadSong(currentSongIndex);
+        updateSongTitle();
+    });
     
-    .message {
-        width: 180px;
-        padding: 1rem;
-    }
+    // Next song button event
+    nextBtn.addEventListener('click', () => {
+        currentSongIndex = (currentSongIndex + 1) % playlist.length;
+        loadSong(currentSongIndex);
+        updateSongTitle();
+    });
     
-    .sticky-note {
-        padding: 1.5rem;
-    }
+    // When song ends, play next song
+    music.addEventListener('ended', () => {
+        currentSongIndex = (currentSongIndex + 1) % playlist.length;
+        loadSong(currentSongIndex);
+        updateSongTitle();
+    });
+
+    // Set default volume to 50%
+    music.volume = 0.5;
     
-    .song-title {
-        width: 80px;
-        font-size: 0.7rem;
-    }
+    // Auto play music when page loads (may be blocked by browsers)
+    window.addEventListener('click', () => {
+        if (!isPlaying) {
+            music.play();
+            playBtn.classList.add('playing');
+            isPlaying = true;
+        }
+    }, { once: true });
     
-    .music-nav-btn {
-        width: 25px;
-        height: 25px;
+    // Play/pause toggle with icon change
+    playBtn.addEventListener('click', () => {
+        if (isPlaying) {
+            music.pause();
+            playBtn.classList.remove('playing');
+        } else {
+            music.play();
+            playBtn.classList.add('playing');
+        }
+        isPlaying = !isPlaying;
+    });
+    
+    // Volume control with percentage display for vertical slider
+    volumeSlider.addEventListener('input', () => {
+        const volumeValue = volumeSlider.value;
+        music.volume = volumeValue;
+        volumeDisplay.textContent = `${Math.round(volumeValue * 100)}%`;
+    });
+
+    // Handle keyboard events for accessibility
+    document.addEventListener('keydown', (e) => {
+        if (e.key === 'Escape') {
+            if (memoryViewer.classList.contains('active')) {
+                memoryViewer.classList.remove('active');
+                overlay.classList.remove('active');
+            }
+            if (stickyContainer.classList.contains('active')) {
+                closeNoteViewer(); // Use the proper function
+            }
+            
+            // Resume animations if both viewers are closed
+            if (!memoryViewer.classList.contains('active') && !stickyContainer.classList.contains('active')) {
+                document.querySelector('.carousel-track').classList.remove('paused');
+                document.querySelector('.message-track').classList.remove('paused');
+                isScrollPaused = false;
+            }
+        }
+    });
+
+    // Preload images to ensure smooth transitions
+    function preloadImages() {
+        const images = document.querySelectorAll('img');
+        images.forEach(img => {
+            const src = img.getAttribute('src');
+            if (src) {
+                const newImg = new Image();
+                newImg.src = src;
+            }
+        });
     }
-}
+    preloadImages();
 
-/* ===== Gift Box Container ===== */
-/* FULL SCREEN GIFT BOX */
-#gift-box {
-    position: fixed;
-    top: 0;
-    left: 0;
-    width: 100%;
-    height: 100%;
-    z-index: 1000;
-    cursor: pointer;
-    overflow: hidden;
-}
+    // Add to script.js
+    const openNoteBtn = document.getElementById('open-note-form');
+    const noteFormContainer = document.querySelector('.sticky-note-form-container');
+    const addImagesBtn = document.getElementById('add-images');
+    const imageUpload = document.getElementById('image-upload');
+    const imagePreviewContainer = document.querySelector('.image-preview-container');
+    let uploadedImages = [];
 
-/* ELEGANT WRAPPING PAPER WITH WHITE/GRAY SCHEME - SMOOTHER ANIMATION */
-.wrapping-paper {
-    position: absolute;
-    width: calc(100% + 200px);
-    height: calc(100% + 200px);
-    top: -100px;
-    left: -100px;
-    background: #2b87d8;
-    background-image: 
-        /* Simple white small dots */
-        radial-gradient(
-            circle at center,
-            rgba(255,255,255,0.7) 1px,
-            transparent 1px
-        ),
-        /* Light gray slightly larger dots */
-        radial-gradient(
-            circle at 50% 50%,
-            rgba(255,255,255,0.2) 0,
-            rgba(255,255,255,0.2) 4px,
-            transparent 4px
-        ),
-        /* Subtle white grid */
-        linear-gradient(
-            to right,
-            transparent 18px,
-            rgba(255,255,255,0.1) 18px,
-            rgba(255,255,255,0.1) 19px,
-            transparent 19px
-        ),
-        linear-gradient(
-            to bottom,
-            transparent 18px,
-            rgba(255,255,255,0.1) 18px,
-            rgba(255,255,255,0.1) 19px,
-            transparent 19px
-        );
-    background-size: 10px 10px, 30px 30px, 20px 20px, 20px 20px;
-    animation: subtle-shift 3s linear infinite;
-}
+    // Open form
+    openNoteBtn.addEventListener('click', () => {
+        noteFormContainer.classList.add('active');
+        document.body.style.overflow = 'hidden';
+    });
 
-@keyframes subtle-shift {
-    0% { background-position: 0 0, 0 0, 0 0, 0 0; }
-    100% { background-position: 10px 10px, 30px 30px, 20px 20px, 20px 20px; }
-}
+    // Image upload handling
+    addImagesBtn.addEventListener('click', () => imageUpload.click());
 
-/* THINNER LIGHT BLUE RIBBONS */
-.ribbon-cross::before,
-.ribbon-cross::after {
-    content: '';
-    position: absolute;
-    background: #BBE1FA;
-    box-shadow: 0 0 15px rgba(0,0,0,0.1);
-    z-index: 1;
-}
+    imageUpload.addEventListener('change', (e) => {
+        const files = Array.from(e.target.files);
+        const remainingSlots = 3 - uploadedImages.length;
+        
+        if (files.length > remainingSlots) {
+            alert(`You can only add ${remainingSlots} more images`);
+            return;
+        }
 
-.ribbon-cross::before { /* Horizontal ribbon - now thinner */
-    width: 100%;
-    height: 40px; /* Reduced from 80px */
-    top: 50%;
-    transform: translateY(-50%);
-    background: linear-gradient(to right, 
-        transparent 5%, 
-        #BBE1FA 5%, 
-        #BBE1FA 95%, 
-        transparent 95%);
-}
+        files.slice(0, remainingSlots).forEach(file => {
+            const reader = new FileReader();
+            reader.onload = (event) => {
+                const imgContainer = document.createElement('div');
+                imgContainer.className = 'image-preview';
+                imgContainer.innerHTML = `
+                    <img src="${event.target.result}" alt="Preview">
+                    <button class="remove-image">&times;</button>
+                `;
+                imagePreviewContainer.appendChild(imgContainer);
+                
+                imgContainer.querySelector('.remove-image').addEventListener('click', () => {
+                    imgContainer.remove();
+                    uploadedImages = uploadedImages.filter(img => img !== file);
+                    updateImageCounter();
+                });
+            };
+            reader.readAsDataURL(file);
+            uploadedImages.push(file);
+        });
+        
+        updateImageCounter();
+    });
 
-.ribbon-cross::after { /* Vertical ribbon - now thinner */
-    width: 40px; /* Reduced from 80px */
-    height: 100%;
-    left: 50%;
-    transform: translateX(-50%);
-    background: linear-gradient(to bottom, 
-        transparent 5%, 
-        #BBE1FA 5%, 
-        #BBE1FA 95%, 
-        transparent 95%);
-}
+    function updateImageCounter() {
+        addImagesBtn.innerHTML = `<i class="fas fa-plus"></i> Add Images (${uploadedImages.length}/3)`;
+    }
 
-/* IMPROVED BOW - STILL LARGE */
-.bow {
-    position: absolute;
-    top: 50%;
-    left: 50%;
-    width: 160px;
-    height: 100px;
-    transform: translate(-50%, -50%);
-    z-index: 2;
-    filter: drop-shadow(0 5px 15px rgba(0,0,0,0.2));
-}
+    // Handle form submission
+    document.getElementById('note-form').addEventListener('submit', async (e) => {
+        e.preventDefault();
+        
+        const formData = new FormData(e.target);
+        uploadedImages.forEach((file, index) => {
+            formData.append(`image${index+1}`, file);
+        });
 
-.bow::before,
-.bow::after {
-    content: '';
-    position: absolute;
-    width: 70px;
-    height: 90px;
-    background: #BBE1FA;
-    border-radius: 50%;
-    box-shadow: 3px 5px 15px rgba(0,0,0,0.2);
-}
+        try {
+            await fetch('/', {
+                method: 'POST',
+                body: formData,
+            });
 
-.bow::before {
-    left: 0;
-    transform: rotate(-30deg) skewY(20deg);
-}
+            alert('Note submitted successfully!');
+            noteFormContainer.classList.remove('active');
+            uploadedImages = [];
+            imagePreviewContainer.innerHTML = '';
+            updateImageCounter();
+            e.target.reset();
+            
+            // Refresh messages (you'll need to implement this)
+            // await refreshMessages();
+            
+        } catch (error) {
+            alert('Error submitting note');
+        }
+    });
 
-.bow::after {
-    right: 0;
-    transform: rotate(30deg) skewY(-20deg);
-}
-
-.bow span {
-    position: absolute;
-    top: 50%;
-    left: 50%;
-    width: 40px;
-    height: 40px;
-    background: #8ac4ff;
-    border-radius: 50%;
-    transform: translate(-50%, -50%);
-    box-shadow: 
-        inset 0 3px 6px rgba(0,0,0,0.2),
-        0 3px 8px rgba(0,0,0,0.3);
-    z-index: 3;
-}
-
-/* SCROLL LOCK */
-body.gift-mode {
-    overflow: hidden;
-    position: fixed;
-    width: 100%;
-    height: 100%;
-}
+    // Close form
+    noteFormContainer.querySelector('.close-note').addEventListener('click', () => {
+        noteFormContainer.classList.remove('active');
+        document.body.style.overflow = '';
+    });
+});
