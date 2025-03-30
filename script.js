@@ -378,7 +378,8 @@ document.addEventListener('DOMContentLoaded', () => {
     // ========================
     // NEW: Live Message Handler
     // ========================
-    document.getElementById('note-form')?.addEventListener('submit', async (e) => {
+    // FORM SUBMISSION HANDLER
+    document.getElementById('note-form').addEventListener('submit', async (e) => {
       e.preventDefault();
       
       // 1. Get form data
@@ -387,66 +388,50 @@ document.addEventListener('DOMContentLoaded', () => {
       const message = formData.get('message');
       const sender = formData.get('sender');
     
-      // 2. Create new message element
+      // 2. Add to carousel immediately
       const newMessage = document.createElement('div');
       newMessage.className = 'message';
       newMessage.dataset.msg = message;
       newMessage.dataset.sender = sender;
+      newMessage.dataset.stamp = "images/stamp1.png";
       newMessage.innerHTML = `<span>A message from ${sender}</span>`;
-    
-      // 3. Add to carousel (top)
       document.querySelector('.message-track').prepend(newMessage);
     
-      // 4. Submit to Netlify
-      await fetch('/', {
-        method: 'POST',
-        body: new URLSearchParams(formData),
-        headers: { 'Content-Type': 'application/x-www-form-urlencoded' }
-      });
+      // 3. Submit to Netlify (optional backup)
+      try {
+        await fetch('/', {
+          method: 'POST',
+          body: new URLSearchParams(formData),
+          headers: { 'Content-Type': 'application/x-www-form-urlencoded' }
+        });
+      } catch (err) {
+        console.error("Netlify submission failed:", err);
+      }
     
-      // 5. Reset form
+      // 4. Reset form
       form.reset();
       document.querySelector('.sticky-note-form-container').classList.remove('active');
     });
-
-    // Load existing submissions from Netlify
-async function loadSubmissions() {
-  try {
-    const response = await fetch('/.netlify/functions/getSubmissions');
-    const data = await response.json();
     
-    data.forEach(sub => {
-      addMessageToCarousel(sub.message, sub.sender);
-    });
-  } catch (err) {
-    console.log("Couldn't load submissions", err);
-  }
-}
-
-// Helper function to add messages
-function addMessageToCarousel(message, sender) {
-  const messageTrack = document.querySelector('.message-track');
-  const newMessage = document.createElement('div');
-  newMessage.className = 'message';
-  newMessage.dataset.msg = message;
-  newMessage.dataset.sender = sender;
-  newMessage.dataset.stamp = "images/stamp1.png";
-  newMessage.innerHTML = `<span>A message from ${sender}</span>`;
-  messageTrack.prepend(newMessage);
-}
-
-// Load submissions when page loads
-document.addEventListener('DOMContentLoaded', loadSubmissions);
-
-    // Load submissions on start
-fetch('/.netlify/functions/getSubmissions')
-  .then(res => res.json())
-  .then(data => {
-    data.forEach(sub => {
-      const msg = document.createElement('div');
-      msg.className = 'message';
-      msg.innerHTML = `<span>A message from ${sub.data.sender}</span>`;
-      document.querySelector('.message-track').appendChild(msg);
-    });
-  });
+    // LOAD EXISTING MESSAGES (ONLY IF USING FUNCTIONS)
+    async function loadExistingMessages() {
+      try {
+        const response = await fetch('/.netlify/functions/getSubmissions');
+        const submissions = await response.json();
+        
+        submissions.forEach(sub => {
+          const msg = document.createElement('div');
+          msg.className = 'message';
+          msg.dataset.msg = sub.message || sub.data?.message;
+          msg.dataset.sender = sub.sender || sub.data?.sender;
+          msg.innerHTML = `<span>A message from ${msg.dataset.sender}</span>`;
+          document.querySelector('.message-track').appendChild(msg);
+        });
+      } catch (err) {
+        console.log("Not loading submissions:", err.message);
+      }
+    }
+    
+    // INITIAL LOAD
+    document.addEventListener('DOMContentLoaded', loadExistingMessages);
 });
