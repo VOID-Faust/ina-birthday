@@ -201,7 +201,9 @@ document.addEventListener('DOMContentLoaded', () => {
     // Auto play music when page loads (may be blocked by browsers)
     window.addEventListener('click', () => {
         if (!isPlaying) {
-            music.play();
+            music.play().catch(err => {
+                console.log("Auto-play prevented by browser:", err);
+            });
             playBtn.classList.add('playing');
             isPlaying = true;
         }
@@ -213,7 +215,9 @@ document.addEventListener('DOMContentLoaded', () => {
             music.pause();
             playBtn.classList.remove('playing');
         } else {
-            music.play();
+            music.play().catch(err => {
+                console.log("Play prevented by browser:", err);
+            });
             playBtn.classList.add('playing');
         }
         isPlaying = !isPlaying;
@@ -318,169 +322,200 @@ document.addEventListener('DOMContentLoaded', () => {
         document.body.style.overflow = '';
     });
 
-    // IMPROVED FORM HANDLER from paste.txt
+    // IMPROVED FORM HANDLER with error handling
     document.getElementById('note-form').addEventListener('submit', async (e) => {
-      e.preventDefault();
-      
-      // 1. Get form data
-      const formData = new FormData(e.target);
-      const message = formData.get('message');
-      const sender = formData.get('sender');
-      
-      // Process any uploaded images (optional part)
-      const imageFiles = Array.from(document.querySelectorAll('.image-preview img'))
-        .map(img => img.src);
-      
-      // 2. Generate a random stamp (1-4)
-      const stampNumber = Math.floor(Math.random() * 4) + 1;
-      const stampUrl = `images/stamp${stampNumber}.png`;
-      
-      // 3. Add to carousel IMMEDIATELY for instant feedback
-      const newMsg = document.createElement('div');
-      newMsg.className = 'message';
-      newMsg.dataset.msg = message;
-      newMsg.dataset.sender = sender;
-      newMsg.dataset.stamp = stampUrl;
-      newMsg.innerHTML = `<span>A message from ${sender}</span>`;
-      
-      // Add it to both the original and cloned parts of the track
-      document.querySelector('.message-track').prepend(newMsg);
-      
-      // Clone it once more for the infinite scroll
-      const clone = newMsg.cloneNode(true);
-      document.querySelector('.message-track').appendChild(clone);
-      
-      // Attach click event to the new messages
-      [newMsg, clone].forEach(item => {
-        item.addEventListener('click', () => {
-          const noteContent = document.querySelector('.note-content');
-          const noteSender = document.querySelector('.note-sender');
-          const noteStamp = document.querySelector('.note-stamp');
-          const stickyContainer = document.querySelector('.sticky-note-container');
-          
-          noteContent.textContent = item.dataset.msg;
-          noteSender.textContent = `- ${item.dataset.sender}`;
-          noteStamp.style.backgroundImage = `url(${item.dataset.stamp})`;
-          stickyContainer.classList.add('active');
-          document.body.style.overflow = 'hidden';
-          
-          // Pause all animations
-          document.querySelector('.carousel-track').classList.add('paused');
-          document.querySelector('.message-track').classList.add('paused');
-        });
-      });
-      
-      // 4. Submit to Netlify
-      try {
-        const response = await fetch('/', {
-          method: 'POST',
-          body: new URLSearchParams(formData),
-          headers: { 'Content-Type': 'application/x-www-form-urlencoded' }
-        });
+        e.preventDefault();
         
-        if (!response.ok) {
-          console.error('Form submission error:', await response.text());
-        } else {
-          console.log('Message submitted successfully!');
+        // Show loading indicator
+        const submitBtn = e.target.querySelector('button[type="submit"]');
+        const originalBtnText = submitBtn.innerHTML;
+        submitBtn.innerHTML = 'Sending...';
+        submitBtn.disabled = true;
+        
+        try {
+            // 1. Get form data
+            const formData = new FormData(e.target);
+            const message = formData.get('message');
+            const sender = formData.get('sender');
+            
+            // Validate input
+            if (!message || !sender) {
+                throw new Error('Please fill in both message and sender name');
+            }
+            
+            // Process any uploaded images
+            const imageFiles = Array.from(document.querySelectorAll('.image-preview img'))
+                .map(img => img.src);
+            
+            // Add image data to formData if present
+            imageFiles.forEach((file, index) => {
+                formData.append(`image${index + 1}`, file);
+            });
+            
+            // 2. Generate a random stamp (1-4)
+            const stampNumber = Math.floor(Math.random() * 4) + 1;
+            const stampUrl = `images/stamp${stampNumber}.png`;
+            
+            // 3. Add to carousel IMMEDIATELY for instant feedback
+            const newMsg = document.createElement('div');
+            newMsg.className = 'message';
+            newMsg.dataset.msg = message;
+            newMsg.dataset.sender = sender;
+            newMsg.dataset.stamp = stampUrl;
+            newMsg.innerHTML = `<span>A message from ${sender}</span>`;
+            
+            // Add it to both the original and cloned parts of the track
+            const messageTrack = document.querySelector('.message-track');
+            messageTrack.prepend(newMsg);
+            
+            // Clone it once more for the infinite scroll
+            const clone = newMsg.cloneNode(true);
+            messageTrack.appendChild(clone);
+            
+            // Attach click event to the new messages
+            [newMsg, clone].forEach(item => {
+                item.addEventListener('click', () => {
+                    noteContent.textContent = item.dataset.msg;
+                    noteSender.textContent = `- ${item.dataset.sender}`;
+                    noteStamp.style.backgroundImage = `url(${item.dataset.stamp})`;
+                    stickyContainer.classList.add('active');
+                    document.body.style.overflow = 'hidden';
+                    
+                    // Pause all animations
+                    document.querySelector('.carousel-track').classList.add('paused');
+                    document.querySelector('.message-track').classList.add('paused');
+                });
+            });
+            
+            // 4. Submit to Netlify
+            // Set form attribute to ensure it's directed to the correct form
+            formData.append('form-name', 'sticky-notes');
+            
+            const response = await fetch('/', {
+                method: 'POST',
+                body: new URLSearchParams(formData),
+                headers: { 'Content-Type': 'application/x-www-form-urlencoded' }
+            });
+            
+            if (!response.ok) {
+                const errorText = await response.text();
+                console.error('Form submission error:', errorText);
+                throw new Error(`Form submission failed: ${response.status}`);
+            } else {
+                console.log('Message submitted successfully!');
+            }
+            
+            // 5. Reset form and close it
+            e.target.reset();
+            document.querySelector('.image-preview-container').innerHTML = '';
+            uploadedImages = [];
+            updateImageCounter();
+            document.querySelector('.sticky-note-form-container').classList.remove('active');
+            document.body.style.overflow = '';
+            
+            // Show confirmation to user
+            alert('Your message has been added!');
+        } catch (err) {
+            console.error("Form submission failed:", err);
+            alert(`Error: ${err.message || 'Something went wrong. Please try again.'}`);
+        } finally {
+            // Restore submit button
+            submitBtn.innerHTML = originalBtnText;
+            submitBtn.disabled = false;
         }
-      } catch (err) {
-        console.error("Form submission failed:", err);
-      }
-      
-      // 5. Reset form and close it
-      e.target.reset();
-      document.querySelector('.image-preview-container').innerHTML = '';
-      document.querySelector('.sticky-note-form-container').classList.remove('active');
-      document.body.style.overflow = '';
-      
-      // Show confirmation to user
-      alert('Your message has been added!');
     });
 
-    // IMPROVED LOAD EXISTING MESSAGES function from paste.txt
+    // IMPROVED LOAD EXISTING MESSAGES function with better error handling
     async function loadMessages() {
-      try {
-        const response = await fetch('/.netlify/functions/getSubmissions');
-        
-        if (!response.ok) {
-          throw new Error(`Failed to load messages: ${response.status} ${response.statusText}`);
-        }
-        
-        const messages = await response.json();
-        
-        if (!Array.isArray(messages) || messages.length === 0) {
-          console.log("No existing messages found");
-          return;
-        }
-        
-        console.log(`Loaded ${messages.length} messages`);
-        
-        // Clear placeholder messages
+        // Show loading indicator
         const messageTrack = document.querySelector('.message-track');
+        const loadingMsg = document.createElement('div');
+        loadingMsg.className = 'loading-message';
+        loadingMsg.textContent = 'Loading messages...';
         messageTrack.innerHTML = '';
+        messageTrack.appendChild(loadingMsg);
         
-        // Add real messages from submissions
-        messages.forEach(msg => {
-          if (!msg.message || !msg.sender) return;
-          
-          // Generate a random stamp if none exists
-          const stampNumber = Math.floor(Math.random() * 4) + 1;
-          const stampUrl = `images/stamp${stampNumber}.png`;
-          
-          const div = document.createElement('div');
-          div.className = 'message';
-          div.dataset.msg = msg.message;
-          div.dataset.sender = msg.sender;
-          div.dataset.stamp = stampUrl;
-          div.innerHTML = `<span>A message from ${msg.sender}</span>`;
-          messageTrack.appendChild(div);
-          
-          // Add click event to view the message
-          div.addEventListener('click', () => {
-            const noteContent = document.querySelector('.note-content');
-            const noteSender = document.querySelector('.note-sender');
-            const noteStamp = document.querySelector('.note-stamp');
-            const stickyContainer = document.querySelector('.sticky-note-container');
+        try {
+            const response = await fetch('/.netlify/functions/getSubmissions');
             
-            noteContent.textContent = div.dataset.msg;
-            noteSender.textContent = `- ${div.dataset.sender}`;
-            noteStamp.style.backgroundImage = `url(${div.dataset.stamp})`;
-            stickyContainer.classList.add('active');
-            document.body.style.overflow = 'hidden';
+            if (!response.ok) {
+                throw new Error(`Failed to load messages: ${response.status} ${response.statusText}`);
+            }
             
-            // Pause all animations
-            document.querySelector('.carousel-track').classList.add('paused');
-            document.querySelector('.message-track').classList.add('paused');
-          });
-        });
-        
-        // Clone messages for infinite scroll
-        const messageItems = messageTrack.querySelectorAll('.message');
-        messageItems.forEach(item => {
-          const clone = item.cloneNode(true);
-          messageTrack.appendChild(clone);
-          
-          // Need to add the event listener to the clone as well
-          clone.addEventListener('click', () => {
-            const noteContent = document.querySelector('.note-content');
-            const noteSender = document.querySelector('.note-sender');
-            const noteStamp = document.querySelector('.note-stamp');
-            const stickyContainer = document.querySelector('.sticky-note-container');
+            const messages = await response.json();
             
-            noteContent.textContent = clone.dataset.msg;
-            noteSender.textContent = `- ${clone.dataset.sender}`;
-            noteStamp.style.backgroundImage = `url(${clone.dataset.stamp})`;
-            stickyContainer.classList.add('active');
-            document.body.style.overflow = 'hidden';
+            // Remove loading indicator
+            messageTrack.innerHTML = '';
             
-            // Pause all animations
-            document.querySelector('.carousel-track').classList.add('paused');
-            document.querySelector('.message-track').classList.add('paused');
-          });
-        });
-      } catch (err) {
-        console.error("Error loading messages:", err);
-      }
+            if (!Array.isArray(messages) || messages.length === 0) {
+                console.log("No existing messages found");
+                const noMessages = document.createElement('div');
+                noMessages.className = 'message';
+                noMessages.innerHTML = '<span>No messages yet. Be the first!</span>';
+                messageTrack.appendChild(noMessages);
+                return;
+            }
+            
+            console.log(`Loaded ${messages.length} messages`);
+            
+            // Add real messages from submissions
+            messages.forEach(msg => {
+                if (!msg.message || !msg.sender) return;
+                
+                // Use provided stamp or generate a random one
+                const stampUrl = msg.stamp || `images/stamp${Math.floor(Math.random() * 4) + 1}.png`;
+                
+                const div = document.createElement('div');
+                div.className = 'message';
+                div.dataset.msg = msg.message;
+                div.dataset.sender = msg.sender;
+                div.dataset.stamp = stampUrl;
+                div.innerHTML = `<span>A message from ${msg.sender}</span>`;
+                messageTrack.appendChild(div);
+                
+                // Add click event to view the message
+                div.addEventListener('click', () => {
+                    noteContent.textContent = div.dataset.msg;
+                    noteSender.textContent = `- ${div.dataset.sender}`;
+                    noteStamp.style.backgroundImage = `url(${div.dataset.stamp})`;
+                    stickyContainer.classList.add('active');
+                    document.body.style.overflow = 'hidden';
+                    
+                    // Pause all animations
+                    document.querySelector('.carousel-track').classList.add('paused');
+                    document.querySelector('.message-track').classList.add('paused');
+                });
+            });
+            
+            // Clone messages for infinite scroll
+            const messageItems = messageTrack.querySelectorAll('.message');
+            messageItems.forEach(item => {
+                const clone = item.cloneNode(true);
+                messageTrack.appendChild(clone);
+                
+                // Need to add the event listener to the clone as well
+                clone.addEventListener('click', () => {
+                    noteContent.textContent = clone.dataset.msg;
+                    noteSender.textContent = `- ${clone.dataset.sender}`;
+                    noteStamp.style.backgroundImage = `url(${clone.dataset.stamp})`;
+                    stickyContainer.classList.add('active');
+                    document.body.style.overflow = 'hidden';
+                    
+                    // Pause all animations
+                    document.querySelector('.carousel-track').classList.add('paused');
+                    document.querySelector('.message-track').classList.add('paused');
+                });
+            });
+        } catch (err) {
+            console.error("Error loading messages:", err);
+            
+            // Clear loading message and show error
+            messageTrack.innerHTML = '';
+            const errorMsg = document.createElement('div');
+            errorMsg.className = 'message error';
+            errorMsg.innerHTML = '<span>Could not load messages. Please refresh the page.</span>';
+            messageTrack.appendChild(errorMsg);
+        }
     }
 
     // Call loadMessages after DOMContentLoaded
