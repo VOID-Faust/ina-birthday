@@ -1,4 +1,19 @@
 document.addEventListener('DOMContentLoaded', () => {
+
+    // Activate scroll lock immediately
+    document.body.classList.add('gift-mode');
+
+    document.getElementById('gift-box').addEventListener('click', () => {
+        // Remove gift box and unlock scroll
+        document.getElementById('gift-box').style.opacity = 0;
+        setTimeout(() => {
+            document.getElementById('gift-box').style.display = 'none';
+            document.body.classList.remove('gift-mode'); // THIS LINE REMOVES SCROLL LOCK
+        }, 300);
+        
+        document.getElementById('main-site').style.display = 'block';
+    });
+
     // Create shooting stars
     function createStars() {
         const container = document.querySelector('.shooting-stars');
@@ -122,7 +137,7 @@ document.addEventListener('DOMContentLoaded', () => {
             messageTrack.classList.remove('paused');
             isScrollPaused = false;
         }
-}
+    }
     
     closeNote.addEventListener('click', closeNoteViewer);
 
