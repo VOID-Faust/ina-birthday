@@ -374,4 +374,38 @@ document.addEventListener('DOMContentLoaded', () => {
         noteFormContainer.classList.remove('active');
         document.body.style.overflow = '';
     });
+
+    // ========================
+    // NEW: Live Message Handler
+    // ========================
+    document.getElementById('note-form')?.addEventListener('submit', async (e) => {
+      e.preventDefault();
+      
+      // 1. Get form data
+      const form = e.target;
+      const formData = new FormData(form);
+      const message = formData.get('message');
+      const sender = formData.get('sender');
+    
+      // 2. Create new message element
+      const newMessage = document.createElement('div');
+      newMessage.className = 'message';
+      newMessage.dataset.msg = message;
+      newMessage.dataset.sender = sender;
+      newMessage.innerHTML = `<span>A message from ${sender}</span>`;
+    
+      // 3. Add to carousel (top)
+      document.querySelector('.message-track').prepend(newMessage);
+    
+      // 4. Submit to Netlify
+      await fetch('/', {
+        method: 'POST',
+        body: new URLSearchParams(formData),
+        headers: { 'Content-Type': 'application/x-www-form-urlencoded' }
+      });
+    
+      // 5. Reset form
+      form.reset();
+      document.querySelector('.sticky-note-form-container').classList.remove('active');
+    });
 });
