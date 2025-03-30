@@ -408,4 +408,33 @@ document.addEventListener('DOMContentLoaded', () => {
       form.reset();
       document.querySelector('.sticky-note-form-container').classList.remove('active');
     });
+
+    // Load existing submissions from Netlify
+async function loadSubmissions() {
+  try {
+    const response = await fetch('/.netlify/functions/getSubmissions');
+    const data = await response.json();
+    
+    data.forEach(sub => {
+      addMessageToCarousel(sub.message, sub.sender);
+    });
+  } catch (err) {
+    console.log("Couldn't load submissions", err);
+  }
+}
+
+// Helper function to add messages
+function addMessageToCarousel(message, sender) {
+  const messageTrack = document.querySelector('.message-track');
+  const newMessage = document.createElement('div');
+  newMessage.className = 'message';
+  newMessage.dataset.msg = message;
+  newMessage.dataset.sender = sender;
+  newMessage.dataset.stamp = "images/stamp1.png";
+  newMessage.innerHTML = `<span>A message from ${sender}</span>`;
+  messageTrack.prepend(newMessage);
+}
+
+// Load submissions when page loads
+document.addEventListener('DOMContentLoaded', loadSubmissions);
 });
