@@ -375,63 +375,57 @@ document.addEventListener('DOMContentLoaded', () => {
         document.body.style.overflow = '';
     });
 
-    // ========================
-    // NEW: Live Message Handler
-    // ========================
-    // FORM SUBMISSION HANDLER
-    document.getElementById('note-form').addEventListener('submit', async (e) => {
-      e.preventDefault();
-      
-      // 1. Get form data
-      const form = e.target;
-      const formData = new FormData(form);
-      const message = formData.get('message');
-      const sender = formData.get('sender');
-    
-      // 2. Add to carousel immediately
-      const newMessage = document.createElement('div');
-      newMessage.className = 'message';
-      newMessage.dataset.msg = message;
-      newMessage.dataset.sender = sender;
-      newMessage.dataset.stamp = "images/stamp1.png";
-      newMessage.innerHTML = `<span>A message from ${sender}</span>`;
-      document.querySelector('.message-track').prepend(newMessage);
-    
-      // 3. Submit to Netlify (optional backup)
-      try {
-        await fetch('/', {
-          method: 'POST',
-          body: new URLSearchParams(formData),
-          headers: { 'Content-Type': 'application/x-www-form-urlencoded' }
-        });
-      } catch (err) {
-        console.error("Netlify submission failed:", err);
-      }
-    
-      // 4. Reset form
-      form.reset();
-      document.querySelector('.sticky-note-form-container').classList.remove('active');
+    // FORM HANDLER (PUT THIS AT BOTTOM)
+document.getElementById('note-form').addEventListener('submit', async (e) => {
+  e.preventDefault();
+  
+  // 1. Get data
+  const formData = new FormData(e.target);
+  const message = formData.get('message');
+  const sender = formData.get('sender');
+
+  // 2. Add to carousel IMMEDIATELY
+  const newMsg = document.createElement('div');
+  newMsg.className = 'message';
+  newMsg.dataset.msg = message;
+  newMsg.dataset.sender = sender;
+  newMsg.dataset.stamp = "images/stamp1.png";
+  newMsg.innerHTML = `<span>A message from ${sender}</span>`;
+  document.querySelector('.message-track').prepend(newMsg);
+
+  // 3. Submit to Netlify
+  try {
+    await fetch('/', {
+      method: 'POST',
+      body: new URLSearchParams(formData),
+      headers: { 'Content-Type': 'application/x-www-form-urlencoded' }
     });
+  } catch (err) {
+    console.error("Backup save failed:", err);
+  }
+
+  // 4. Reset form
+  e.target.reset();
+  document.querySelector('.sticky-note-form-container').classList.remove('active');
+});
+
+// LOAD EXISTING MESSAGES (RUNS ON PAGE LOAD)
+async function loadMessages() {
+  try {
+    const response = await fetch('/.netlify/functions/getSubmissions');
+    const messages = await response.json();
     
-    // LOAD EXISTING MESSAGES (ONLY IF USING FUNCTIONS)
-    async function loadExistingMessages() {
-      try {
-        const response = await fetch('/.netlify/functions/getSubmissions');
-        const submissions = await response.json();
-        
-        submissions.forEach(sub => {
-          const msg = document.createElement('div');
-          msg.className = 'message';
-          msg.dataset.msg = sub.message || sub.data?.message;
-          msg.dataset.sender = sub.sender || sub.data?.sender;
-          msg.innerHTML = `<span>A message from ${msg.dataset.sender}</span>`;
-          document.querySelector('.message-track').appendChild(msg);
-        });
-      } catch (err) {
-        console.log("Not loading submissions:", err.message);
-      }
-    }
-    
-    // INITIAL LOAD
-    document.addEventListener('DOMContentLoaded', loadExistingMessages);
+    messages.forEach(msg => {
+      const div = document.createElement('div');
+      div.className = 'message';
+      div.dataset.msg = msg.data.message || msg.message;
+      div.dataset.sender = msg.data.sender || msg.sender;
+      div.innerHTML = `<span>A message from ${div.dataset.sender}</span>`;
+      document.querySelector('.message-track').appendChild(div);
+    });
+  } catch (err) {
+    console.log("Couldn't load old messages", err);
+  }
+}
+loadMessages();
 });
