@@ -437,4 +437,16 @@ function addMessageToCarousel(message, sender) {
 
 // Load submissions when page loads
 document.addEventListener('DOMContentLoaded', loadSubmissions);
+
+    // Load submissions on start
+fetch('/.netlify/functions/getSubmissions')
+  .then(res => res.json())
+  .then(data => {
+    data.forEach(sub => {
+      const msg = document.createElement('div');
+      msg.className = 'message';
+      msg.innerHTML = `<span>A message from ${sub.data.sender}</span>`;
+      document.querySelector('.message-track').appendChild(msg);
+    });
+  });
 });
