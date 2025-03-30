@@ -413,18 +413,22 @@ document.getElementById('note-form').addEventListener('submit', async (e) => {
 async function loadMessages() {
   try {
     const response = await fetch('/.netlify/functions/getSubmissions');
-    const messages = await response.json();
+    const { body } = await response.json();
+    const messages = JSON.parse(body) || [];
     
     messages.forEach(msg => {
+      if (!msg.message || !msg.sender) return;
+      
       const div = document.createElement('div');
       div.className = 'message';
-      div.dataset.msg = msg.data.message || msg.message;
-      div.dataset.sender = msg.data.sender || msg.sender;
-      div.innerHTML = `<span>A message from ${div.dataset.sender}</span>`;
+      div.dataset.msg = msg.message;
+      div.dataset.sender = msg.sender;
+      div.dataset.stamp = "images/stamp1.png";
+      div.innerHTML = `<span>A message from ${msg.sender}</span>`;
       document.querySelector('.message-track').appendChild(div);
     });
   } catch (err) {
-    console.log("Couldn't load old messages", err);
+    console.log("Error loading messages:", err);
   }
 }
 loadMessages();
