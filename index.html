@@ -122,30 +122,30 @@
                 <button class="close-note"><i class="fas fa-times"></i></button>
             </div>
         </div>
-        <!-- Replace your existing sticky-note-form-container with this updated version -->
-<div class="sticky-note-form-container">
-    <div class="sticky-note-form">
-        <form id="note-form" name="sticky-notes" method="POST" data-netlify="true" netlify-honeypot="bot-field">
-            <input type="hidden" name="form-name" value="sticky-notes">
-            <p class="hidden" style="display:none">
-                <label>Don't fill this out if you're human: <input name="bot-field" /></label>
-            </p>
-            <div class="note-content">
-                <textarea name="message" placeholder="Write your message to Ina..." required></textarea>
-                <div class="image-preview-container"></div>
-                <input type="file" id="image-upload" name="image1" accept="image/*" style="display: none;">
-                <button type="button" id="add-images" class="image-add-btn">
-                    <i class="fas fa-plus"></i> Add Image (optional)
-                </button>
+        <!-- Updated sticky-note-form-container -->
+        <div class="sticky-note-form-container">
+            <div class="sticky-note-form">
+                <form id="note-form" name="sticky-notes" method="POST" data-netlify="true" netlify-honeypot="bot-field">
+                    <input type="hidden" name="form-name" value="sticky-notes">
+                    <p class="hidden" style="display:none">
+                        <label>Don't fill this out if you're human: <input name="bot-field" /></label>
+                    </p>
+                    <div class="note-content">
+                        <textarea name="message" placeholder="Write your message to Ina..." required></textarea>
+                        <div class="image-preview-container"></div>
+                        <input type="file" id="image-upload" name="image1" accept="image/*" style="display: none;">
+                        <button type="button" id="add-images" class="image-add-btn">
+                            <i class="fas fa-plus"></i> Add Image (optional)
+                        </button>
+                    </div>
+                    <div class="form-footer">
+                        <input type="text" name="sender" placeholder="Your name" required>
+                        <button type="submit">Post Note</button>
+                    </div>
+                </form>
+                <button class="close-note"><i class="fas fa-times"></i></button>
             </div>
-            <div class="form-footer">
-                <input type="text" name="sender" placeholder="Your name" required>
-                <button type="submit">Post Note</button>
-            </div>
-        </form>
-        <button class="close-note"><i class="fas fa-times"></i></button>
-    </div>
-</div>
+        </div>
     </section>
 
     <!-- Music Player -->
@@ -162,27 +162,5 @@
     </div>
 
     <script src="script.js"></script>
-
-        <!-- Add this before closing body tag -->
-    <div class="sticky-note-form-container">
-        <div class="sticky-note-form">
-            <form id="note-form" name="sticky-notes" netlify enctype="multipart/form-data">
-                <input type="hidden" name="form-name" value="sticky-notes">
-                <div class="note-content">
-                    <textarea name="message" placeholder="Write your message..." required></textarea>
-                    <div class="image-preview-container"></div>
-                    <input type="file" id="image-upload" multiple accept="image/*" style="display: none;">
-                    <button type="button" id="add-images" class="image-add-btn">
-                        <i class="fas fa-plus"></i> Add Images (0/3)
-                    </button>
-                </div>
-                <div class="form-footer">
-                    <input type="text" name="sender" placeholder="Your name" required>
-                    <button type="submit">Post Note</button>
-                </div>
-            </form>
-            <button class="close-note"><i class="fas fa-times"></i></button>
-        </div>
-    </div>
 </body>
 </html>
