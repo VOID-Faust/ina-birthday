@@ -436,7 +436,7 @@ document.addEventListener('DOMContentLoaded', () => {
         messageTrack.appendChild(loadingMsg);
         
         try {
-            const response = await fetch('/.netlify/functions/getSubmissions');
+            const response = await fetch('/netlify/functions/getSubmissions');
             
             if (!response.ok) {
                 throw new Error(`Failed to load messages: ${response.status} ${response.statusText}`);
