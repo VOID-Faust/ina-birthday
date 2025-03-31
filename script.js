@@ -436,62 +436,62 @@ document.addEventListener('DOMContentLoaded', () => {
     messageTrack.appendChild(loadingMsg);
     
     try {
-        // Create static mock messages instead of trying to fetch from the server
-        const messages = [
-            {
-                message: "Happy Birthday Ina! Hope you have a wonderful day filled with joy!",
-                sender: "Friend 1",
-                stamp: "images/stamp1.png"
-            },
-            {
-                message: "Wishing you all the best on your special day!",
-                sender: "Friend 2",
-                stamp: "images/stamp2.png"
-            },
-            {
-                message: "Many happy returns! Have an amazing celebration!",
-                sender: "Friend 3",
-                stamp: "images/stamp3.png"
-            }
-        ];
+        // Fetch messages from Netlify function
+        const response = await fetch('/netlify/functions/getSubmissions');
+        
+        if (!response.ok) {
+            throw new Error(`Failed to fetch messages: ${response.status}`);
+        }
+        
+        const messages = await response.json();
         
         // Remove loading indicator
         messageTrack.innerHTML = '';
         
-        // Add messages 
-        messages.forEach(msg => {
-            if (!msg.message || !msg.sender) return;
-            
-            const div = document.createElement('div');
-            div.className = 'message';
-            div.dataset.msg = msg.message;
-            div.dataset.sender = msg.sender;
-            div.dataset.stamp = msg.stamp;
-            div.innerHTML = `<span>A message from ${msg.sender}</span>`;
-            messageTrack.appendChild(div);
-            
-            // Add click event to view the message
-            div.addEventListener('click', () => {
-                const noteContent = document.querySelector('.note-content');
-                const noteSender = document.querySelector('.note-sender');
-                const noteStamp = document.querySelector('.note-stamp');
+        if (messages.length === 0) {
+            // If no messages, add a placeholder
+            const placeholderMsg = document.createElement('div');
+            placeholderMsg.className = 'message';
+            placeholderMsg.dataset.msg = "Be the first to leave a birthday message for Ina!";
+            placeholderMsg.dataset.sender = "Gelo";
+            placeholderMsg.dataset.stamp = "images/stamp1.png";
+            placeholderMsg.innerHTML = `<span>Leave a message!</span>`;
+            messageTrack.appendChild(placeholderMsg);
+        } else {
+            // Add messages from the server
+            messages.forEach(msg => {
+                if (!msg.message || !msg.sender) return;
                 
-                // Check if these elements exist before trying to use them
-                if (noteContent) noteContent.textContent = div.dataset.msg;
-                if (noteSender) noteSender.textContent = `- ${div.dataset.sender}`;
-                if (noteStamp) noteStamp.style.backgroundImage = `url(${div.dataset.stamp})`;
+                const div = document.createElement('div');
+                div.className = 'message';
+                div.dataset.msg = msg.message;
+                div.dataset.sender = msg.sender;
+                div.dataset.stamp = msg.stamp || "images/stamp1.png";
+                div.innerHTML = `<span>A message from ${msg.sender}</span>`;
+                messageTrack.appendChild(div);
                 
-                const stickyContainer = document.querySelector('.sticky-note-container');
-                if (stickyContainer) {
-                    stickyContainer.classList.add('active');
-                    document.body.style.overflow = 'hidden';
-                }
-                
-                // Pause all animations
-                document.querySelector('.carousel-track').classList.add('paused');
-                document.querySelector('.message-track').classList.add('paused');
+                // Add click event to view the message
+                div.addEventListener('click', () => {
+                    const noteContent = document.querySelector('.note-content');
+                    const noteSender = document.querySelector('.note-sender');
+                    const noteStamp = document.querySelector('.note-stamp');
+                    
+                    if (noteContent) noteContent.textContent = div.dataset.msg;
+                    if (noteSender) noteSender.textContent = `- ${div.dataset.sender}`;
+                    if (noteStamp) noteStamp.style.backgroundImage = `url(${div.dataset.stamp})`;
+                    
+                    const stickyContainer = document.querySelector('.sticky-note-container');
+                    if (stickyContainer) {
+                        stickyContainer.classList.add('active');
+                        document.body.style.overflow = 'hidden';
+                    }
+                    
+                    // Pause all animations
+                    document.querySelector('.carousel-track').classList.add('paused');
+                    document.querySelector('.message-track').classList.add('paused');
+                });
             });
-        });
+        }
         
         // Clone messages for infinite scroll
         const messageItems = messageTrack.querySelectorAll('.message');
@@ -505,7 +505,6 @@ document.addEventListener('DOMContentLoaded', () => {
                 const noteSender = document.querySelector('.note-sender');
                 const noteStamp = document.querySelector('.note-stamp');
                 
-                // Check if these elements exist before trying to use them
                 if (noteContent) noteContent.textContent = clone.dataset.msg;
                 if (noteSender) noteSender.textContent = `- ${clone.dataset.sender}`;
                 if (noteStamp) noteStamp.style.backgroundImage = `url(${clone.dataset.stamp})`;
