@@ -9,8 +9,6 @@ document.addEventListener('DOMContentLoaded', () => {
             document.getElementById('gift-box').style.display = 'none';
             document.body.classList.remove('gift-mode'); // THIS LINE REMOVES SCROLL LOCK
         }, 300);
-        
-        document.getElementById('main-site').style.display = 'block';
     });
 
     // Create shooting stars
@@ -93,12 +91,29 @@ document.addEventListener('DOMContentLoaded', () => {
         }
     });
 
-    // Sticky note functionality - we'll attach event listeners after loading messages
+    // Static sticky note functionality
+    const messages = document.querySelectorAll('.message');
     const stickyContainer = document.querySelector('.sticky-note-container');
     const noteContent = document.querySelector('.note-content');
     const noteSender = document.querySelector('.note-sender');
     const noteStamp = document.querySelector('.note-stamp');
     const closeNote = document.querySelector('.close-note');
+
+    // Add click events to all static messages
+    messages.forEach(msg => {
+        msg.addEventListener('click', () => {
+            noteContent.textContent = msg.dataset.msg;
+            noteSender.textContent = `- ${msg.dataset.sender}`;
+            noteStamp.style.backgroundImage = `url(${msg.dataset.stamp})`;
+            stickyContainer.classList.add('active');
+            document.body.style.overflow = 'hidden'; // Prevent page scrolling
+            
+            // Pause all animations
+            memoryTrack.classList.add('paused');
+            document.querySelector('.message-track').classList.add('paused');
+            isScrollPaused = true;
+        });
+    });
 
     // Close note function
     function closeNoteViewer() {
@@ -114,6 +129,29 @@ document.addEventListener('DOMContentLoaded', () => {
     }
     
     closeNote.addEventListener('click', closeNoteViewer);
+
+    // Clone message items for infinite loop
+    const messageTrack = document.querySelector('.message-track');
+    const messageItems = messageTrack.querySelectorAll('.message');
+    
+    messageItems.forEach(item => {
+        const clone = item.cloneNode(true);
+        messageTrack.appendChild(clone);
+        
+        // Add event listener to clone
+        clone.addEventListener('click', () => {
+            noteContent.textContent = clone.dataset.msg;
+            noteSender.textContent = `- ${clone.dataset.sender}`;
+            noteStamp.style.backgroundImage = `url(${clone.dataset.stamp})`;
+            stickyContainer.classList.add('active');
+            document.body.style.overflow = 'hidden';
+            
+            // Pause all animations
+            memoryTrack.classList.add('paused');
+            document.querySelector('.message-track').classList.add('paused');
+            isScrollPaused = true;
+        });
+    });
 
     // Music player with multiple songs
     const music = document.getElementById('music');
@@ -261,363 +299,4 @@ document.addEventListener('DOMContentLoaded', () => {
         });
     }
     preloadImages();
-
-    // Sticky note form functionality
-    const openNoteBtn = document.getElementById('open-note-form');
-    const noteFormContainer = document.querySelector('.sticky-note-form-container');
-    const addImagesBtn = document.getElementById('add-images');
-    const imageUpload = document.getElementById('image-upload');
-    const imagePreviewContainer = document.querySelector('.image-preview-container');
-    let uploadedImages = [];
-
-    // Open form
-    openNoteBtn.addEventListener('click', () => {
-        noteFormContainer.classList.add('active');
-        document.body.style.overflow = 'hidden';
-    });
-
-    // Image upload handling
-    addImagesBtn.addEventListener('click', () => imageUpload.click());
-
-    imageUpload.addEventListener('change', (e) => {
-        const files = Array.from(e.target.files);
-        const remainingSlots = 3 - uploadedImages.length;
-        
-        if (files.length > remainingSlots) {
-            alert(`You can only add ${remainingSlots} more images`);
-            return;
-        }
-
-        files.slice(0, remainingSlots).forEach(file => {
-            const reader = new FileReader();
-            reader.onload = (event) => {
-                const imgContainer = document.createElement('div');
-                imgContainer.className = 'image-preview';
-                imgContainer.innerHTML = `
-                    <img src="${event.target.result}" alt="Preview">
-                    <button class="remove-image">&times;</button>
-                `;
-                imagePreviewContainer.appendChild(imgContainer);
-                
-                imgContainer.querySelector('.remove-image').addEventListener('click', () => {
-                    imgContainer.remove();
-                    uploadedImages = uploadedImages.filter(img => img !== file);
-                    updateImageCounter();
-                });
-            };
-            reader.readAsDataURL(file);
-            uploadedImages.push(file);
-        });
-        
-        updateImageCounter();
-    });
-
-    function updateImageCounter() {
-        addImagesBtn.innerHTML = `<i class="fas fa-plus"></i> Add Images (${uploadedImages.length}/3)`;
-    }
-
-    // Close form
-    noteFormContainer.querySelector('.close-note').addEventListener('click', () => {
-        noteFormContainer.classList.remove('active');
-        document.body.style.overflow = '';
-    });
-
-    // IMPROVED FORM HANDLER with error handling
-    document.getElementById('note-form').addEventListener('submit', async (e) => {
-        e.preventDefault();
-        
-        // Show loading indicator
-        const submitBtn = e.target.querySelector('button[type="submit"]');
-        const originalBtnText = submitBtn.innerHTML;
-        submitBtn.innerHTML = 'Sending...';
-        submitBtn.disabled = true;
-        
-        try {
-            // 1. Get form data
-            const formData = new FormData(e.target);
-            const message = formData.get('message');
-            const sender = formData.get('sender');
-            
-            // Validate input
-            if (!message || !sender) {
-                throw new Error('Please fill in both message and sender name');
-            }
-            
-            // Process any uploaded images
-            const imageFiles = Array.from(document.querySelectorAll('.image-preview img'))
-                .map(img => img.src);
-            
-            // Add image data to formData if present
-            imageFiles.forEach((file, index) => {
-                formData.append(`image${index + 1}`, file);
-            });
-            
-            // 2. Generate a random stamp (1-4)
-            const stampNumber = Math.floor(Math.random() * 4) + 1;
-            const stampUrl = `images/stamp${stampNumber}.png`;
-            
-            // 3. Add to carousel IMMEDIATELY for instant feedback
-            const newMsg = document.createElement('div');
-            newMsg.className = 'message';
-            newMsg.dataset.msg = message;
-            newMsg.dataset.sender = sender;
-            newMsg.dataset.stamp = stampUrl;
-            newMsg.innerHTML = `<span>A message from ${sender}</span>`;
-            
-            // Add it to both the original and cloned parts of the track
-            const messageTrack = document.querySelector('.message-track');
-            messageTrack.prepend(newMsg);
-            
-            // Clone it once more for the infinite scroll
-            const clone = newMsg.cloneNode(true);
-            messageTrack.appendChild(clone);
-            
-            // Attach click event to the new messages
-            [newMsg, clone].forEach(item => {
-                item.addEventListener('click', () => {
-                    noteContent.textContent = item.dataset.msg;
-                    noteSender.textContent = `- ${item.dataset.sender}`;
-                    noteStamp.style.backgroundImage = `url(${item.dataset.stamp})`;
-                    stickyContainer.classList.add('active');
-                    document.body.style.overflow = 'hidden';
-                    
-                    // Pause all animations
-                    document.querySelector('.carousel-track').classList.add('paused');
-                    document.querySelector('.message-track').classList.add('paused');
-                });
-            });
-            
-            // 4. Submit to Netlify
-            // Set form attribute to ensure it's directed to the correct form
-            formData.append('form-name', 'sticky-notes');
-            
-            const response = await fetch('/', {
-                method: 'POST',
-                body: new URLSearchParams(formData),
-                headers: { 'Content-Type': 'application/x-www-form-urlencoded' }
-            });
-            
-            if (!response.ok) {
-                const errorText = await response.text();
-                console.error('Form submission error:', errorText);
-                throw new Error(`Form submission failed: ${response.status}`);
-            } else {
-                console.log('Message submitted successfully!');
-            }
-            
-            // 5. Reset form and close it
-            e.target.reset();
-            document.querySelector('.image-preview-container').innerHTML = '';
-            uploadedImages = [];
-            updateImageCounter();
-            document.querySelector('.sticky-note-form-container').classList.remove('active');
-            document.body.style.overflow = '';
-            
-            // Show confirmation to user
-            alert('Your message has been added!');
-        } catch (err) {
-            console.error("Form submission failed:", err);
-            alert(`Error: ${err.message || 'Something went wrong. Please try again.'}`);
-        } finally {
-            // Restore submit button
-            submitBtn.innerHTML = originalBtnText;
-            submitBtn.disabled = false;
-        }
-    });
-
-    // IMPROVED LOAD EXISTING MESSAGES function with better error handling
-    // Replace the existing loadMessages function with this one
-async function loadMessages() {
-    // Show loading indicator
-    const messageTrack = document.querySelector('.message-track');
-    const loadingMsg = document.createElement('div');
-    loadingMsg.className = 'loading-message';
-    loadingMsg.textContent = 'Loading messages...';
-    messageTrack.innerHTML = '';
-    messageTrack.appendChild(loadingMsg);
-    
-    try {
-        // Fetch messages from Netlify function with retry logic
-        let response;
-        let retries = 3;
-        
-        while (retries > 0) {
-            try {
-                response = await fetch('/netlify/functions/getSubmissions');
-                if (response.ok) break;
-                
-                retries--;
-                console.log(`Fetch failed, retrying (${retries} attempts left)...`);
-                await new Promise(resolve => setTimeout(resolve, 1000)); // Wait 1 second before retry
-            } catch (fetchError) {
-                retries--;
-                console.error("Fetch error:", fetchError);
-                if (retries === 0) throw fetchError;
-                await new Promise(resolve => setTimeout(resolve, 1000));
-            }
-        }
-        
-        if (!response.ok) {
-            throw new Error(`Failed to fetch messages: ${response.status}`);
-        }
-        
-        const data = await response.json();
-        const messages = data.messages || data; // Handle both formats
-        
-        // Store messages in localStorage as backup
-        try {
-            localStorage.setItem('birthday-messages', JSON.stringify({
-                messages: messages,
-                timestamp: new Date().toISOString()
-            }));
-        } catch (storageError) {
-            console.warn("Could not save to localStorage:", storageError);
-        }
-        
-        // Remove loading indicator
-        messageTrack.innerHTML = '';
-        
-        if (!messages || messages.length === 0) {
-            // If no messages, add a placeholder
-            const placeholderMsg = document.createElement('div');
-            placeholderMsg.className = 'message';
-            placeholderMsg.dataset.msg = "Be the first to leave a birthday message for Ina!";
-            placeholderMsg.dataset.sender = "Gelo";
-            placeholderMsg.dataset.stamp = "images/stamp1.png";
-            placeholderMsg.innerHTML = `<span>Leave a message!</span>`;
-            messageTrack.appendChild(placeholderMsg);
-        } else {
-            // Add messages from the server
-            messages.forEach(msg => {
-                if (!msg.message || !msg.sender) return;
-                
-                const div = document.createElement('div');
-                div.className = 'message';
-                div.dataset.msg = msg.message;
-                div.dataset.sender = msg.sender;
-                div.dataset.stamp = msg.stamp || "images/stamp1.png";
-                div.innerHTML = `<span>A message from ${msg.sender}</span>`;
-                messageTrack.appendChild(div);
-                
-                // Add click event to view the message
-                div.addEventListener('click', () => {
-                    openMessageViewer(div);
-                });
-            });
-        }
-        
-        // Clone messages for infinite scroll
-        const messageItems = messageTrack.querySelectorAll('.message');
-        messageItems.forEach(item => {
-            const clone = item.cloneNode(true);
-            messageTrack.appendChild(clone);
-            
-            // Need to add the event listener to the clone as well
-            clone.addEventListener('click', () => {
-                openMessageViewer(clone);
-            });
-        });
-    } catch (err) {
-        console.error("Error loading messages:", err);
-        
-        // Try to load from localStorage if API fails
-        try {
-            const cachedData = localStorage.getItem('birthday-messages');
-            if (cachedData) {
-                const parsed = JSON.parse(cachedData);
-                console.log("Loading messages from cache dated:", parsed.timestamp);
-                
-                // Clear loading message
-                messageTrack.innerHTML = '';
-                
-                // Process cached messages
-                const messages = parsed.messages;
-                if (messages && messages.length > 0) {
-                    messages.forEach(msg => {
-                        if (!msg.message || !msg.sender) return;
-                        
-                        const div = document.createElement('div');
-                        div.className = 'message';
-                        div.dataset.msg = msg.message;
-                        div.dataset.sender = msg.sender;
-                        div.dataset.stamp = msg.stamp || "images/stamp1.png";
-                        div.innerHTML = `<span>A message from ${msg.sender}</span>`;
-                        messageTrack.appendChild(div);
-                        
-                        // Add click event
-                        div.addEventListener('click', () => {
-                            openMessageViewer(div);
-                        });
-                    });
-                    
-                    // Clone for infinite scroll
-                    const messageItems = messageTrack.querySelectorAll('.message');
-                    messageItems.forEach(item => {
-                        const clone = item.cloneNode(true);
-                        messageTrack.appendChild(clone);
-                        
-                        clone.addEventListener('click', () => {
-                            openMessageViewer(clone);
-                        });
-                    });
-                    
-                    // Add notice that these are cached
-                    const notice = document.createElement('div');
-                    notice.className = 'cached-notice';
-                    notice.textContent = "Showing cached messages. Some recent messages might be missing.";
-                    document.querySelector('.messages h2').after(notice);
-                    
-                    return; // Exit function if we successfully loaded from cache
-                }
-            }
-            
-            // If we got here, the cache didn't work either
-            throw new Error("No cached messages available");
-        } catch (cacheErr) {
-            console.error("Cache retrieval failed:", cacheErr);
-            
-            // Clear loading message and show error
-            messageTrack.innerHTML = '';
-            const errorMsg = document.createElement('div');
-            errorMsg.className = 'message error';
-            errorMsg.innerHTML = '<span>Could not load messages. Please refresh the page.</span>';
-            messageTrack.appendChild(errorMsg);
-        }
-    }
-}
-
-// Helper function to open the message viewer
-function openMessageViewer(messageElement) {
-    const noteContent = document.querySelector('.note-content');
-    const noteSender = document.querySelector('.note-sender');
-    const noteStamp = document.querySelector('.note-stamp');
-    
-    if (noteContent) noteContent.textContent = messageElement.dataset.msg;
-    if (noteSender) noteSender.textContent = `- ${messageElement.dataset.sender}`;
-    if (noteStamp) noteStamp.style.backgroundImage = `url(${messageElement.dataset.stamp})`;
-    
-    const stickyContainer = document.querySelector('.sticky-note-container');
-    if (stickyContainer) {
-        stickyContainer.classList.add('active');
-        document.body.style.overflow = 'hidden';
-    }
-    
-    // Pause all animations
-    document.querySelector('.carousel-track').classList.add('paused');
-    document.querySelector('.message-track').classList.add('paused');
-}
-    } catch (err) {
-        console.error("Error loading messages:", err);
-        
-        // Clear loading message and show error
-        messageTrack.innerHTML = '';
-        const errorMsg = document.createElement('div');
-        errorMsg.className = 'message error';
-        errorMsg.innerHTML = '<span>Could not load messages. Please refresh the page.</span>';
-        messageTrack.appendChild(errorMsg);
-    }
-}
-
-    // Call loadMessages after DOMContentLoaded
-    loadMessages();
 });
