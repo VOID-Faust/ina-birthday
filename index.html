@@ -7,16 +7,6 @@
     <link href="https://fonts.googleapis.com/css2?family=Dancing+Script:wght@700&family=Montserrat:wght@400;600&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
     <link rel="stylesheet" href="style.css">
-    <script>
-        // Add this in head section
-        if (window.netlifyIdentity) {
-            window.netlifyIdentity.on("init", user => {
-                if (!user) window.netlifyIdentity.on("login", () => {
-                    document.location.href = "/admin/";
-                });
-            });
-        }
-    </script>
 </head>
 <body>
     
@@ -55,21 +45,21 @@
                 <div class="carousel-track">
                     <!-- Add more images as needed -->
                     <div class="memory-item">
-                        <img src="images/ina_image1.jpg" alt="Memory 1" data-caption="Message To Be Added">
+                        <img src="images/ina_image1.jpg" alt="Memory 1" data-caption="Our first adventure together">
                     </div>
                     <div class="memory-item">
-                        <img src="images/ina_image2.jpg" alt="Memory 2" data-caption="Message To Be Added">
+                        <img src="images/ina_image2.jpg" alt="Memory 2" data-caption="That time we laughed until we cried">
                     </div>
                     <div class="memory-item">
-                        <img src="images/ina_image3.jpg" alt="Memory 3" data-caption="Message To Be Added">
+                        <img src="images/ina_image3.jpg" alt="Memory 3" data-caption="You always bring the sunshine">
                     </div>
                     <div class="memory-item">
-                        <img src="images/ina_image4.jpg" alt="Memory 4" data-caption="Message To Be Added">
+                        <img src="images/ina_image4.jpg" alt="Memory 4" data-caption="Unforgettable moments">
                     </div>
                     <div class="memory-item">
-                        <img src="images/ina_image5.jpg" alt="Memory 5" data-caption="Message To Be Added">
+                        <img src="images/ina_image5.jpg" alt="Memory 5" data-caption="Here's to many more years of friendship">
                     </div>
-                    <!-- Clone for infinite scroll -->
+                    <!-- Clone for infinite scroll will be done by JavaScript -->
                 </div>
             </div>
         </div>
@@ -85,30 +75,26 @@
         </div>
     </div>
 
-    <!-- Messages Section -->
+    <!-- Messages Section (Static) -->
     <section class="messages">
         <div class="bg-decoration waves"></div>
         <div class="bg-decoration circles"></div>
         <h2>Messages from Friends</h2>
         <div class="message-carousel">
-            <!-- Add this inside the messages section -->
-            <div class="add-note-btn">
-                <button id="open-note-form"><i class="fas fa-plus"></i></button>
-            </div>
             <div class="message-track">
-                <div class="message" data-msg="Message To Be Added" data-sender="Damjan" data-stamp="images/stamp1.png">
+                <div class="message" data-msg="Happy birthday, Ina! Wishing you all the happiness in the world on your special day. May this year bring you everything you've been dreaming of!" data-sender="Damjan" data-stamp="images/stamp1.png">
                     <span>A message from Damjan</span>
                 </div>
-                <div class="message" data-msg="Message To Be Added" data-sender="Cyril" data-stamp="images/stamp2.png">
+                <div class="message" data-msg="Here's to another trip around the sun with you, Ina! Thanks for being such an amazing friend. Looking forward to celebrating many more birthdays together!" data-sender="Cyril" data-stamp="images/stamp2.png">
                     <span>A message from Cyril</span>
                 </div>
-                <div class="message" data-msg="Message To Be Added" data-sender="Jhun" data-stamp="images/stamp3.png">
+                <div class="message" data-msg="Happy birthday to one of the kindest souls I know! You make the world a better place just by being in it. Enjoy your special day!" data-sender="Jhun" data-stamp="images/stamp3.png">
                     <span>A message from Jhun</span>
                 </div>
-                <div class="message" data-msg="Message To Be Added" data-sender="James" data-stamp="images/stamp4.png">
+                <div class="message" data-msg="Ina, you're truly one of a kind! Wishing you a birthday filled with laughter, love, and unforgettable memories. Can't wait to celebrate with you!" data-sender="James" data-stamp="images/stamp4.png">
                     <span>A message from James</span>
                 </div>
-                <!-- Clone for infinite scroll -->
+                <!-- Clone for infinite scroll will be done by JavaScript -->
             </div>
         </div>
         <!-- Sticky Note Viewer -->
@@ -119,30 +105,6 @@
                     <div class="note-sender"></div>
                     <div class="note-stamp"></div>
                 </div>
-                <button class="close-note"><i class="fas fa-times"></i></button>
-            </div>
-        </div>
-        <!-- Updated sticky-note-form-container -->
-        <div class="sticky-note-form-container">
-            <div class="sticky-note-form">
-                <form id="note-form" name="sticky-notes" method="POST" data-netlify="true" netlify-honeypot="bot-field">
-                    <input type="hidden" name="form-name" value="sticky-notes">
-                    <p class="hidden" style="display:none">
-                        <label>Don't fill this out if you're human: <input name="bot-field" /></label>
-                    </p>
-                    <div class="note-content">
-                        <textarea name="message" placeholder="Write your message to Ina..." required></textarea>
-                        <div class="image-preview-container"></div>
-                        <input type="file" id="image-upload" name="image1" accept="image/*" style="display: none;">
-                        <button type="button" id="add-images" class="image-add-btn">
-                            <i class="fas fa-plus"></i> Add Image (optional)
-                        </button>
-                    </div>
-                    <div class="form-footer">
-                        <input type="text" name="sender" placeholder="Your name" required>
-                        <button type="submit">Post Note</button>
-                    </div>
-                </form>
                 <button class="close-note"><i class="fas fa-times"></i></button>
             </div>
         </div>
