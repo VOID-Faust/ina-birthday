@@ -82,41 +82,77 @@ exports.handler = async (event, context) => {
 
     console.log(`Found form: ${noteForm.name} with ID: ${noteForm.id}`);
 
-    // Now fetch submissions for this specific form
-    const submissionsResponse = await fetch(
-      `https://api.netlify.com/api/v1/forms/${noteForm.id}/submissions`, 
-      {
-        headers: {
-          'Authorization': `Bearer ${netlifyToken}`,
-          'Content-Type': 'application/json'
+    // Now fetch ALL submissions for this specific form
+    // Set pagination parameters to ensure we get all submissions
+    let allSubmissions = [];
+    let page = 0;
+    const perPage = 100;
+    let hasMore = true;
+
+    while (hasMore) {
+      const submissionsResponse = await fetch(
+        `https://api.netlify.com/api/v1/forms/${noteForm.id}/submissions?page=${page}&per_page=${perPage}`, 
+        {
+          headers: {
+            'Authorization': `Bearer ${netlifyToken}`,
+            'Content-Type': 'application/json'
+          }
         }
+      );
+
+      if (!submissionsResponse.ok) {
+        const errorText = await submissionsResponse.text();
+        console.error(`Submissions request failed: ${submissionsResponse.status}`, errorText);
+        throw new Error(`Submissions request failed: ${submissionsResponse.status}`);
       }
-    );
 
-    if (!submissionsResponse.ok) {
-      const errorText = await submissionsResponse.text();
-      console.error(`Submissions request failed: ${submissionsResponse.status}`, errorText);
-      throw new Error(`Submissions request failed: ${submissionsResponse.status}`);
+      const pageSubmissions = await submissionsResponse.json();
+      
+      if (!Array.isArray(pageSubmissions)) {
+        console.error('Unexpected submissions response format:', pageSubmissions);
+        break;
+      }
+
+      allSubmissions = [...allSubmissions, ...pageSubmissions];
+      
+      // If we got fewer results than the page size, we've reached the end
+      if (pageSubmissions.length < perPage) {
+        hasMore = false;
+      } else {
+        page++;
+      }
     }
 
-    const submissionsData = await submissionsResponse.json();
+    console.log(`Found ${allSubmissions.length} total submissions`);
+
+    // Add persistent local file storage as backup
+    const fs = require('fs');
+    const path = require('path');
     
-    if (!Array.isArray(submissionsData)) {
-      console.error('Unexpected submissions response format:', submissionsData);
-      return {
-        statusCode: 200,
-        body: JSON.stringify([]),
-        headers: { 
-          'Content-Type': 'application/json',
-          'Access-Control-Allow-Origin': '*'
-        }
-      };
+    // Ensure the data directory exists
+    const dataDir = path.join('/tmp', 'message-data');
+    try {
+      if (!fs.existsSync(dataDir)) {
+        fs.mkdirSync(dataDir, { recursive: true });
+      }
+    } catch (err) {
+      console.error('Error creating data directory:', err);
+      // Continue even if this fails - we'll just rely on Netlify Forms
     }
 
-    console.log(`Found ${submissionsData.length} submissions`);
+    // Save submissions to local file as backup
+    try {
+      fs.writeFileSync(
+        path.join(dataDir, 'submissions.json'),
+        JSON.stringify(allSubmissions)
+      );
+    } catch (err) {
+      console.error('Error saving submissions to file:', err);
+      // Continue even if this fails
+    }
 
     // Process submissions
-    const messages = submissionsData
+    const messages = allSubmissions
       .filter(sub => !sub.spam)
       .map(sub => {
         // Generate a random stamp number (1-4) for each message
@@ -148,10 +184,14 @@ exports.handler = async (event, context) => {
         };
       });
 
-    // Return the processed messages
+    // Return the processed messages, including a timestamp to aid debugging
     return {
       statusCode: 200,
-      body: JSON.stringify(messages),
+      body: JSON.stringify({
+        messages: messages,
+        timestamp: new Date().toISOString(),
+        count: messages.length
+      }),
       headers: { 
         'Content-Type': 'application/json',
         'Access-Control-Allow-Origin': '*',
@@ -162,7 +202,10 @@ exports.handler = async (event, context) => {
     console.error('Error in getSubmissions function:', err);
     return {
       statusCode: 500,
-      body: JSON.stringify({ error: err.message || 'Unknown error occurred' }),
+      body: JSON.stringify({ 
+        error: err.message || 'Unknown error occurred',
+        timestamp: new Date().toISOString()
+      }),
       headers: { 
         'Content-Type': 'application/json',
         'Access-Control-Allow-Origin': '*'
