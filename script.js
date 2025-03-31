@@ -427,96 +427,111 @@ document.addEventListener('DOMContentLoaded', () => {
 
     // IMPROVED LOAD EXISTING MESSAGES function with better error handling
     async function loadMessages() {
-        // Show loading indicator
-        const messageTrack = document.querySelector('.message-track');
-        const loadingMsg = document.createElement('div');
-        loadingMsg.className = 'loading-message';
-        loadingMsg.textContent = 'Loading messages...';
-        messageTrack.innerHTML = '';
-        messageTrack.appendChild(loadingMsg);
+    // Show loading indicator
+    const messageTrack = document.querySelector('.message-track');
+    const loadingMsg = document.createElement('div');
+    loadingMsg.className = 'loading-message';
+    loadingMsg.textContent = 'Loading messages...';
+    messageTrack.innerHTML = '';
+    messageTrack.appendChild(loadingMsg);
+    
+    try {
+        // Create static mock messages instead of trying to fetch from the server
+        const messages = [
+            {
+                message: "Happy Birthday Ina! Hope you have a wonderful day filled with joy!",
+                sender: "Friend 1",
+                stamp: "images/stamp1.png"
+            },
+            {
+                message: "Wishing you all the best on your special day!",
+                sender: "Friend 2",
+                stamp: "images/stamp2.png"
+            },
+            {
+                message: "Many happy returns! Have an amazing celebration!",
+                sender: "Friend 3",
+                stamp: "images/stamp3.png"
+            }
+        ];
         
-        try {
-            const response = await fetch('/netlify/functions/getSubmissions');
+        // Remove loading indicator
+        messageTrack.innerHTML = '';
+        
+        // Add messages 
+        messages.forEach(msg => {
+            if (!msg.message || !msg.sender) return;
             
-            if (!response.ok) {
-                throw new Error(`Failed to load messages: ${response.status} ${response.statusText}`);
-            }
+            const div = document.createElement('div');
+            div.className = 'message';
+            div.dataset.msg = msg.message;
+            div.dataset.sender = msg.sender;
+            div.dataset.stamp = msg.stamp;
+            div.innerHTML = `<span>A message from ${msg.sender}</span>`;
+            messageTrack.appendChild(div);
             
-            const messages = await response.json();
-            
-            // Remove loading indicator
-            messageTrack.innerHTML = '';
-            
-            if (!Array.isArray(messages) || messages.length === 0) {
-                console.log("No existing messages found");
-                const noMessages = document.createElement('div');
-                noMessages.className = 'message';
-                noMessages.innerHTML = '<span>No messages yet. Be the first!</span>';
-                messageTrack.appendChild(noMessages);
-                return;
-            }
-            
-            console.log(`Loaded ${messages.length} messages`);
-            
-            // Add real messages from submissions
-            messages.forEach(msg => {
-                if (!msg.message || !msg.sender) return;
+            // Add click event to view the message
+            div.addEventListener('click', () => {
+                const noteContent = document.querySelector('.note-content');
+                const noteSender = document.querySelector('.note-sender');
+                const noteStamp = document.querySelector('.note-stamp');
                 
-                // Use provided stamp or generate a random one
-                const stampUrl = msg.stamp || `images/stamp${Math.floor(Math.random() * 4) + 1}.png`;
+                // Check if these elements exist before trying to use them
+                if (noteContent) noteContent.textContent = div.dataset.msg;
+                if (noteSender) noteSender.textContent = `- ${div.dataset.sender}`;
+                if (noteStamp) noteStamp.style.backgroundImage = `url(${div.dataset.stamp})`;
                 
-                const div = document.createElement('div');
-                div.className = 'message';
-                div.dataset.msg = msg.message;
-                div.dataset.sender = msg.sender;
-                div.dataset.stamp = stampUrl;
-                div.innerHTML = `<span>A message from ${msg.sender}</span>`;
-                messageTrack.appendChild(div);
-                
-                // Add click event to view the message
-                div.addEventListener('click', () => {
-                    noteContent.textContent = div.dataset.msg;
-                    noteSender.textContent = `- ${div.dataset.sender}`;
-                    noteStamp.style.backgroundImage = `url(${div.dataset.stamp})`;
+                const stickyContainer = document.querySelector('.sticky-note-container');
+                if (stickyContainer) {
                     stickyContainer.classList.add('active');
                     document.body.style.overflow = 'hidden';
-                    
-                    // Pause all animations
-                    document.querySelector('.carousel-track').classList.add('paused');
-                    document.querySelector('.message-track').classList.add('paused');
-                });
-            });
-            
-            // Clone messages for infinite scroll
-            const messageItems = messageTrack.querySelectorAll('.message');
-            messageItems.forEach(item => {
-                const clone = item.cloneNode(true);
-                messageTrack.appendChild(clone);
+                }
                 
-                // Need to add the event listener to the clone as well
-                clone.addEventListener('click', () => {
-                    noteContent.textContent = clone.dataset.msg;
-                    noteSender.textContent = `- ${clone.dataset.sender}`;
-                    noteStamp.style.backgroundImage = `url(${clone.dataset.stamp})`;
+                // Pause all animations
+                document.querySelector('.carousel-track').classList.add('paused');
+                document.querySelector('.message-track').classList.add('paused');
+            });
+        });
+        
+        // Clone messages for infinite scroll
+        const messageItems = messageTrack.querySelectorAll('.message');
+        messageItems.forEach(item => {
+            const clone = item.cloneNode(true);
+            messageTrack.appendChild(clone);
+            
+            // Need to add the event listener to the clone as well
+            clone.addEventListener('click', () => {
+                const noteContent = document.querySelector('.note-content');
+                const noteSender = document.querySelector('.note-sender');
+                const noteStamp = document.querySelector('.note-stamp');
+                
+                // Check if these elements exist before trying to use them
+                if (noteContent) noteContent.textContent = clone.dataset.msg;
+                if (noteSender) noteSender.textContent = `- ${clone.dataset.sender}`;
+                if (noteStamp) noteStamp.style.backgroundImage = `url(${clone.dataset.stamp})`;
+                
+                const stickyContainer = document.querySelector('.sticky-note-container');
+                if (stickyContainer) {
                     stickyContainer.classList.add('active');
                     document.body.style.overflow = 'hidden';
-                    
-                    // Pause all animations
-                    document.querySelector('.carousel-track').classList.add('paused');
-                    document.querySelector('.message-track').classList.add('paused');
-                });
+                }
+                
+                // Pause all animations
+                document.querySelector('.carousel-track').classList.add('paused');
+                document.querySelector('.message-track').classList.add('paused');
             });
-        } catch (err) {
-            console.error("Error loading messages:", err);
-            
-            // Clear loading message and show error
-            messageTrack.innerHTML = '';
-            const errorMsg = document.createElement('div');
-            errorMsg.className = 'message error';
-            errorMsg.innerHTML = '<span>Could not load messages. Please refresh the page.</span>';
-            messageTrack.appendChild(errorMsg);
-        }
+        });
+    } catch (err) {
+        console.error("Error loading messages:", err);
+        
+        // Clear loading message and show error
+        messageTrack.innerHTML = '';
+        const errorMsg = document.createElement('div');
+        errorMsg.className = 'message error';
+        errorMsg.innerHTML = '<span>Could not load messages. Please refresh the page.</span>';
+        messageTrack.appendChild(errorMsg);
     }
+}
 
     // Call loadMessages after DOMContentLoaded
     loadMessages();
