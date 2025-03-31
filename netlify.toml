@@ -1,5 +1,6 @@
 [build]
   functions = "netlify/functions"
-
+[build.environment]
+  NETLIFY_TOKEN = "nfp_SQeyjyE2GnW92ijVkm58MfMJRUgT6Lzd296f"
 [dev]
   functions = "netlify/functions"
