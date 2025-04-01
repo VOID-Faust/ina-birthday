@@ -45,19 +45,19 @@
                 <div class="carousel-track">
                     <!-- Add more images as needed -->
                     <div class="memory-item">
-                        <img src="images/ina_image1.jpg" alt="Memory 1" data-caption="Our first adventure together">
+                        <img src="images/ina_image1.jpg" alt="Memory 1" data-caption="Message To Be Added">
                     </div>
                     <div class="memory-item">
-                        <img src="images/ina_image2.jpg" alt="Memory 2" data-caption="That time we laughed until we cried">
+                        <img src="images/ina_image2.jpg" alt="Memory 2" data-caption="Message To Be Added">
                     </div>
                     <div class="memory-item">
-                        <img src="images/ina_image3.jpg" alt="Memory 3" data-caption="You always bring the sunshine">
+                        <img src="images/ina_image3.jpg" alt="Memory 3" data-caption="Message To Be Added">
                     </div>
                     <div class="memory-item">
-                        <img src="images/ina_image4.jpg" alt="Memory 4" data-caption="Unforgettable moments">
+                        <img src="images/ina_image4.jpg" alt="Memory 4" data-caption="Message To Be Added">
                     </div>
                     <div class="memory-item">
-                        <img src="images/ina_image5.jpg" alt="Memory 5" data-caption="Here's to many more years of friendship">
+                        <img src="images/ina_image5.jpg" alt="Memory 5" data-caption="Message To Be Added">
                     </div>
                     <!-- Clone for infinite scroll will be done by JavaScript -->
                 </div>
@@ -75,38 +75,44 @@
         </div>
     </div>
 
-    <!-- Messages Section (Static) -->
+    <!-- Messages Section (Envelope Design) -->
     <section class="messages">
-        <div class="bg-decoration waves"></div>
-        <div class="bg-decoration circles"></div>
-        <h2>Messages from Friends</h2>
-        <div class="message-carousel">
-            <div class="message-track">
-                <div class="message" data-msg="Happy birthday, Ina! Wishing you all the happiness in the world on your special day. May this year bring you everything you've been dreaming of!" data-sender="Damjan" data-stamp="images/stamp1.png">
-                    <span>A message from Damjan</span>
+        <div class="messages-container">
+            <h2>Messages</h2>
+            
+            <!-- Message selector -->
+            <div class="message-selector">
+                <h3>Select a friend</h3>
+                <div class="friend-buttons">
+                    <button class="friend-btn active" data-friend="all">All</button>
+                    <button class="friend-btn" data-friend="friend1">Friend 1</button>
+                    <button class="friend-btn" data-friend="friend2">Friend 2</button>
+                    <button class="friend-btn" data-friend="friend3">Friend 3</button>
+                    <!-- Add more friends as needed -->
                 </div>
-                <div class="message" data-msg="Here's to another trip around the sun with you, Ina! Thanks for being such an amazing friend. Looking forward to celebrating many more birthdays together!" data-sender="Cyril" data-stamp="images/stamp2.png">
-                    <span>A message from Cyril</span>
-                </div>
-                <div class="message" data-msg="Happy birthday to one of the kindest souls I know! You make the world a better place just by being in it. Enjoy your special day!" data-sender="Jhun" data-stamp="images/stamp3.png">
-                    <span>A message from Jhun</span>
-                </div>
-                <div class="message" data-msg="Ina, you're truly one of a kind! Wishing you a birthday filled with laughter, love, and unforgettable memories. Can't wait to celebrate with you!" data-sender="James" data-stamp="images/stamp4.png">
-                    <span>A message from James</span>
-                </div>
-                <!-- Clone for infinite scroll will be done by JavaScript -->
             </div>
-        </div>
-        <!-- Sticky Note Viewer -->
-        <div class="sticky-note-container">
-            <div class="sticky-note">
-                <div class="note-content"></div>
-                <div class="note-footer">
-                    <div class="note-sender"></div>
-                    <div class="note-stamp"></div>
+            
+            <!-- Envelope containing messages -->
+            <div class="envelope-container">
+                <div class="envelope">
+                    <div class="envelope-back"></div>
+                    <div class="envelope-left-flap"></div>
+                    <div class="envelope-right-flap"></div>
+                    <div class="envelope-bottom-flap"></div>
+                    <div class="envelope-lines"></div>
+                    <div class="envelope-flap"></div>
+                    <div class="seal"></div>
+                    
+                    <!-- This is where your message content goes -->
+                    <div class="letter-paper">
+                        <div class="letter-content"></div>
+                        <div class="letter-photos"></div>
+                        <div class="letter-from"></div>
+                    </div>
                 </div>
-                <button class="close-note"><i class="fas fa-times"></i></button>
             </div>
+            
+            <!-- Grid of message previews -->
         </div>
     </section>
 
@@ -120,7 +126,7 @@
         <div class="music-button">
             <button id="play-btn"><i class="fas fa-music"></i></button>
         </div>
-        <audio id="music" src="music/Bruno Major - To Let A Good Thing Die (Instrumental).mp3"></audio>
+        <audio id="music" src="music/Sparks_(Instrumental).mp3"></audio>
     </div>
 
     <script src="script.js"></script>
