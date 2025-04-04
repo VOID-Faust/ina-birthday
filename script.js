@@ -2,7 +2,7 @@ document.addEventListener('DOMContentLoaded', () => {
     // Messages data structure - add all your friends' messages here
     const friendMessages = {
         friend1: {
-            name: "Friend 1's Name",
+            name: "Gelo",
             message: "Happy birthday, Inaaaang. \nI wish you nothing but the best in life. Just know I’m always here if you ever need someone to talk to 💪 Seriously bitaw, I hope you’re having fun! we are all super greatful that you’re part of our lives. I’ll always be your friend, your buddy, your go-to kung naay ungo, your someone-to-talk-to, bodyguard, whatever you need!\nStay cool, always",
             photos: ["images/ina_image6.jpg"]
         },
