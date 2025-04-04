@@ -3,18 +3,28 @@ document.addEventListener('DOMContentLoaded', () => {
     const friendMessages = {
         friend1: {
             name: "Friend 1's Name",
-            message: "Your personalized birthday message for Ina from Friend 1. Add more text as needed to fill out the message with memories and well wishes.",
-            photos: ["images/ina_image6.jpg", "images/friend1_photo2.jpg", "images/friend1_photo3.jpg"]
+            message: "Happy birthday, Inaaaang. \nI wish you nothing but the best in life. Just know I’m always here if you ever need someone to talk to 💪 Seriously bitaw, I hope you’re having fun! we are all super greatful that you’re part of our lives. I’ll always be your friend, your buddy, your go-to kung naay ungo, your someone-to-talk-to, bodyguard, whatever you need!\nStay cool, always",
+            photos: ["images/ina_image6.jpg"]
         },
         friend2: {
-            name: "Friend 2's Name",
-            message: "Another personalized birthday message from Friend 2. Share special memories and birthday wishes.",
-            photos: ["images/friend2_photo1.jpg", "images/friend2_photo2.jpg"]
+            name: "Nikol",
+            message: "happy birthday ina!\na one of a kind, the most bravest person i ever know. ina, you have the heart of a lion (a person of exceptional courage and bravery). you move mountains with your bare hands despite carrying a lot of baggage and i think that’s just amazing. enjoy every little moment of your life, you are loved by many (including me, syempre). you’re doing a great job, note that ALWAYS!! i am so proud of you ina! i miss you, let’s hang out soon!! ENJOY YOUR DAAAY < 3",
         },
         friend3: {
-            name: "Friend 3's Name",
-            message: "Another personalized birthday message from Friend 3. Share special memories and birthday wishes.",
-            photos: ["images/friend2_photo1.jpg", "images/friend2_photo2.jpg"]
+            name: "Jhun",
+            message: "Congratulations Ina sa imong level up gikan lvl 18 to lvl 19 keep on the grind pareha natag level🔥",
+        },
+        friend4: {
+            name: "Arnek",
+            message: "Happy Birthday Manang, kabalo ko sa kadugay na nato kaila sa isa't isa, alams mo na di jud ko one for speeches. Maong karon, I'll keep it short nalang. Although minimal na kaayo atong contact considering college nata, we still try to keep our connection, even if only through social media. Unya kana, para nako, is very heartwarming and meaningful. Sa tinuoray lang, wala jud ko ga expect na magka-close ta as we are now if hunaon2 ang atong dynamics sauna. Milagro rajud na nagkaila2 even if classmates ta ato. If mo balik pa ang panahon ikaw gihapon akong pilion as a friend, bisag kapila pata ma reincarnate HAHAHAHAH\nHbd manang",
+        },
+        friend5: {
+            name: "Cyril",
+            message: "Dear inash, Happiest birthday to our future CPA! I just want to say nga kombati para malibrihan nako nimo puhon hihi, anyways I hope you enjoy your day and basig naa kay friends diha pang motivation lang kekeke.",
+        },
+        friend6: {
+            name: "James",
+            message: "unta mabuhi pakag dugay🎉🎉🥰🥰",
         }
         // Add more friends as needed
     };
@@ -170,7 +180,8 @@ document.addEventListener('DOMContentLoaded', () => {
         
         const playlist = [
             "music/Sparks_(Instrumental).mp3",
-            "music/Bruno Major - To Let A Good Thing Die (Instrumental).mp3"
+            "music/Bruno Major - To Let A Good Thing Die (Instrumental).mp3",
+            "music/Coldplay - Yellow (official instrumental).mp3"
         ];
         
         let currentSongIndex = 0;
